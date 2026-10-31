@@ -30,6 +30,12 @@ namespace CaSentLeSoufre.App.UI
         private MatchSetupModel _model;
         private Page _page = Page.Main;
 
+        // Partie enregistrée à reprendre (null s'il n'y en a pas) ; lancer une nouvelle partie la remplace,
+        // après une confirmation d'un second clic (_confirmReplace demande l'affichage, _showReplaceConfirm le garde).
+        private MatchData _saved;
+        private bool _confirmReplace;
+        private bool _showReplaceConfirm;
+
         // Page des statistiques : relue depuis le disque à chaque ouverture, filtre : 0 = tous, 1 = classique, 2 = démon.
         private StatsBook _statsBook = new StatsBook();
         private int _statsFilter;
@@ -54,6 +60,7 @@ namespace CaSentLeSoufre.App.UI
 
             _model = MatchSetupModel.FromPreferences(preferences, Loc.Get("menu.you"));
             _model.Language = language;
+            _saved = GameSaveStorage.LoadValid();
 
             BuildCanvas();
             Rebuild();
@@ -150,6 +157,10 @@ namespace CaSentLeSoufre.App.UI
 
         private void Rebuild()
         {
+            // La demande de confirmation ne vaut que pour cet affichage : toute autre action la fait disparaître.
+            _showReplaceConfirm = _confirmReplace;
+            _confirmReplace = false;
+
             float scrollPosition = _scroll.verticalNormalizedPosition;
 
             // Désactiver avant de détruire : la mise en page ne compte plus les anciens éléments.
@@ -218,6 +229,8 @@ namespace CaSentLeSoufre.App.UI
             UiFactory.MakeButton(header, Loc.Get("menu.stats"), () => ShowPage(Page.Stats), 24, 220, 60);
             UiFactory.MakeButton(header, Loc.Get("menu.settings"), () => ShowPage(Page.Settings), 24, 220, 60);
 
+            if (_saved != null) BuildSavedGameCard();
+
             var card = UiFactory.Card(_column);
             UiFactory.Label(card, Loc.Get("menu.quick.title"), 36, Theme.Text, FontStyle.Bold);
 
@@ -255,7 +268,8 @@ namespace CaSentLeSoufre.App.UI
 
             _errorsHost = UiFactory.Column(_column, 0);
 
-            _startButton = UiFactory.MakeButton(_column, Loc.Get("menu.start"), OnStart, 36, 0, 84, Theme.Accent);
+            _startButton = UiFactory.MakeButton(_column,
+                Loc.Get(_showReplaceConfirm ? "menu.replace_confirm" : "menu.start"), OnStart, 36, 0, 84, Theme.Accent);
         }
 
         private void AddStepButton(Transform parent, string text, Action change, bool interactable = true)
@@ -273,11 +287,53 @@ namespace CaSentLeSoufre.App.UI
             UiFactory.Size(value, minWidth: 130, preferredWidth: 130, flexibleWidth: 0);
         }
 
+        /// <summary>La partie en cours : un résumé et le bouton pour la reprendre là où on s'était arrêté.</summary>
+        private void BuildSavedGameCard()
+        {
+            var settings = _saved.Settings;
+            string mode = Loc.Get($"mode.{(GameMode)settings.Mode}.label");
+            string summary = Loc.Get("menu.saved.summary", mode, 1 + settings.Opponents.Count,
+                Mathf.Max(1, _saved.RoundNumber), settings.RoundCount);
+
+            var card = UiFactory.Card(_column);
+            UiFactory.Label(card, Loc.Get("menu.saved.title"), 36, Theme.Text, FontStyle.Bold);
+            UiFactory.Label(card, summary, 26, Theme.Muted);
+            UiFactory.MakeButton(card, Loc.Get("menu.saved.resume"), OnResume, 34, 0, 76, Theme.Accent);
+        }
+
+        private void OnResume()
+        {
+            if (_saved == null) return;
+
+            _canvasObject.SetActive(false);
+            try
+            {
+                TableController.Resume(transform, _saved, OnTableClosed);
+            }
+            catch (Exception e)
+            {
+                // Sauvegarde inutilisable malgré la vérification : on la met de côté et on revient au menu.
+                Debug.LogException(e);
+                GameSaveStorage.Delete();
+                _saved = null;
+                _canvasObject.SetActive(true);
+                Rebuild();
+            }
+        }
+
         private void OnStart()
         {
             if (!_model.IsValid)
             {
                 RefreshStatus();
+                return;
+            }
+
+            // Une partie est en cours : la remplacer demande un second clic.
+            if (_saved != null && !_showReplaceConfirm)
+            {
+                _confirmReplace = true;
+                Rebuild();
                 return;
             }
 
@@ -299,6 +355,7 @@ namespace CaSentLeSoufre.App.UI
         private void OnTableClosed()
         {
             GameSession.Clear();
+            _saved = GameSaveStorage.LoadValid();
             _canvasObject.SetActive(true);
             _page = Page.Main;
             Rebuild();

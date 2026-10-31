@@ -40,6 +40,10 @@ namespace CaSentLeSoufre.App.UI
         private GameObject _canvasObject;
         private RectTransform _view;
 
+        // Une partie abandonnée (ou finie) ne doit plus être enregistrée, même si le jeu se ferme ensuite.
+        private bool _saveDisabled;
+        private float _abandonConfirmUntil;
+
         private readonly List<string> _log = new List<string>();
         private readonly List<int> _selected = new List<int>();
         private int _swapHandIndex = -1;
@@ -66,6 +70,24 @@ namespace CaSentLeSoufre.App.UI
             return controller;
         }
 
+        /// <summary>Reprend la partie enregistrée là où elle s'était arrêtée (le journal des coups repart vide).</summary>
+        public static TableController Resume(Transform parent, MatchData saved, Action onExit)
+        {
+            var host = new GameObject("Table");
+            host.transform.SetParent(parent, false);
+            var controller = host.AddComponent<TableController>();
+            try
+            {
+                controller.BeginResume(saved, onExit);
+            }
+            catch
+            {
+                Destroy(host);
+                throw;
+            }
+            return controller;
+        }
+
         private void Begin(MatchSettings settings, Action onExit)
         {
             _onExit = onExit;
@@ -77,6 +99,18 @@ namespace CaSentLeSoufre.App.UI
             _session.StartRound();
             HandleEvents(_session.DrainEvents());
             Refresh();
+            SaveProgress();
+        }
+
+        private void BeginResume(MatchData saved, Action onExit)
+        {
+            _onExit = onExit;
+            _stats = StatsStorage.Load();
+            _match = Match.FromData(saved, _stats);
+            _session = TableSession.Resume(_match, new TableTimings(), new System.Random().Next());
+
+            BuildCanvas();
+            Refresh();
         }
 
         private void Update()
@@ -85,10 +119,67 @@ namespace CaSentLeSoufre.App.UI
 
             if (!_session.RoundOver) _session.Tick(Time.deltaTime);
 
+            // La confirmation d'abandon s'efface d'elle-même au bout de quelques secondes.
+            if (_abandonConfirmUntil > 0f && Time.unscaledTime >= _abandonConfirmUntil)
+            {
+                _abandonConfirmUntil = 0f;
+                Refresh();
+            }
+
             var events = _session.DrainEvents();
             if (events.Count == 0) return;
             HandleEvents(events);
             Refresh();
+            SaveProgress();
+        }
+
+        // ---------------------------------------------------------------- Sauvegarde et départ
+
+        /// <summary>
+        /// Enregistre la partie après chaque coup, pour qu'elle puisse être reprise même si le jeu est fermé
+        /// brutalement. Une partie terminée n'est plus enregistrée.
+        /// </summary>
+        private void SaveProgress()
+        {
+            if (_match == null || _session == null || _saveDisabled) return;
+
+            if (_match.IsOver && _session.RoundOver) GameSaveStorage.Delete();
+            else GameSaveStorage.Save(_match.ToData());
+        }
+
+        private void OnApplicationQuit() => SaveProgress();
+
+        private void OnApplicationPause(bool paused)
+        {
+            if (paused) SaveProgress();
+        }
+
+        /// <summary>Quitte vers le menu en gardant la partie : elle pourra être reprise.</summary>
+        private void SaveAndQuit()
+        {
+            SaveProgress();
+            _saveDisabled = true;
+            Exit();
+        }
+
+        /// <summary>Demande une confirmation avant d'abandonner (un second clic dans les 4 secondes).</summary>
+        private void OnAbandonClicked()
+        {
+            if (Time.unscaledTime < _abandonConfirmUntil)
+            {
+                Abandon();
+                return;
+            }
+
+            _abandonConfirmUntil = Time.unscaledTime + 4f;
+            Refresh();
+        }
+
+        private void Abandon()
+        {
+            _saveDisabled = true;
+            GameSaveStorage.Delete();
+            Exit();
         }
 
         // ---------------------------------------------------------------- Mise en place
@@ -480,7 +571,7 @@ namespace CaSentLeSoufre.App.UI
 
             // Colonne de gauche : manche, tour en cours, cartes brûlées, abandon.
             var info = UiFactory.Column(row, 4, 0, TextAnchor.MiddleLeft);
-            UiFactory.Size(info, minWidth: 380, preferredWidth: 380, flexibleWidth: 0);
+            UiFactory.Size(info, minWidth: 480, preferredWidth: 480, flexibleWidth: 0);
             UiFactory.Label(info, Loc.Get("table.round", Mathf.Max(1, _match.RoundNumber), _match.Settings.RoundCount),
                 26, Theme.Muted, FontStyle.Bold);
 
@@ -492,7 +583,14 @@ namespace CaSentLeSoufre.App.UI
             UiFactory.Label(info, Loc.Get("table.burned", game.BurnedCount), 22, Theme.Muted);
             if (game.Direction < 0)
                 UiFactory.Label(info, Loc.Get("table.direction_reversed"), 22, Theme.Accent, FontStyle.Bold);
-            UiFactory.MakeButton(info, Loc.Get("table.quit"), Exit, 22, 200, 46);
+            // Deux sorties : on garde la partie pour la reprendre plus tard, ou on l'abandonne (avec confirmation).
+            var exits = UiFactory.Row(info, 10);
+            UiFactory.MakeButton(exits, Loc.Get("table.save_quit"), SaveAndQuit, 20, 0, 46).GetComponent<LayoutElement>()
+                .flexibleWidth = 1;
+            bool confirming = Time.unscaledTime < _abandonConfirmUntil;
+            var abandon = UiFactory.MakeButton(exits, Loc.Get(confirming ? "table.confirm_abandon" : "table.quit"),
+                OnAbandonClicked, 20, 0, 46, confirming ? Theme.Accent : Theme.PanelLight);
+            abandon.GetComponent<LayoutElement>().flexibleWidth = 1;
 
             // Pioche.
             var draw = UiFactory.Column(row, 4, 0, TextAnchor.MiddleCenter);
@@ -513,7 +611,7 @@ namespace CaSentLeSoufre.App.UI
 
             // Journal des derniers coups.
             var log = UiFactory.Column(row, 2, 0, TextAnchor.MiddleLeft);
-            UiFactory.Size(log, minWidth: 560, preferredWidth: 560, flexibleWidth: 0);
+            UiFactory.Size(log, minWidth: 500, preferredWidth: 500, flexibleWidth: 0);
             for (int i = 0; i < _log.Count; i++)
             {
                 bool latest = i == _log.Count - 1;
@@ -613,6 +711,7 @@ namespace CaSentLeSoufre.App.UI
         {
             HandleEvents(_session.DrainEvents());
             Refresh();
+            SaveProgress();
         }
 
         private void OnHandClicked(int index) => OnOwnCardClicked(Zone.Hand, index);
@@ -634,6 +733,7 @@ namespace CaSentLeSoufre.App.UI
                 {
                     _session.HumanSwap(me.Hand[_swapHandIndex], me.FaceUp[index]);
                     _swapHandIndex = -1;
+                    SaveProgress(); // l'échange change les cartes : on l'enregistre aussi
                 }
                 Refresh();
                 return;
@@ -749,7 +849,7 @@ namespace CaSentLeSoufre.App.UI
 
             var buttons = UiFactory.Row(panel, 20, TextAnchor.MiddleCenter);
             if (matchOver)
-                UiFactory.MakeButton(buttons, Loc.Get("table.back_to_menu"), Exit, 30, 360, 64, Theme.Accent);
+                UiFactory.MakeButton(buttons, Loc.Get("table.back_to_menu"), Abandon, 30, 360, 64, Theme.Accent);
             else
                 UiFactory.MakeButton(buttons, Loc.Get("table.next_round"), OnNextRound, 30, 360, 64, Theme.Accent);
         }

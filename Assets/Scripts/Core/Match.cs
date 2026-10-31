@@ -33,9 +33,13 @@ namespace CaSentLeSoufre.Core
     {
         private readonly List<Player> _players = new List<Player>();
         private readonly Random _rng;
+        private readonly int _seed;
         private readonly int[] _points;
         private readonly int[] _shitheadCount;
         private bool _roundInProgress;
+
+        /// <summary>Nombre de tirages déjà faits dans <see cref="_rng"/> (une manche distribuée = un tirage).</summary>
+        private int _roundsStarted;
 
         public MatchSettings Settings { get; }
         public IReadOnlyList<Player> Players => _players;
@@ -63,6 +67,7 @@ namespace CaSentLeSoufre.Core
 
             Settings = settings;
             Stats = stats;
+            _seed = seed;
             _rng = new Random(seed);
             _players.Add(new Player(settings.HumanName.Trim(), isHuman: true));
             foreach (var ai in settings.Opponents)
@@ -80,8 +85,81 @@ namespace CaSentLeSoufre.Core
 
             RoundNumber++;
             _roundInProgress = true;
+            _roundsStarted++;
             CurrentGame = new Game(_players, Settings.Rules, _rng.Next());
             return CurrentGame;
+        }
+
+        // ---------------------------------------------------------------- Sauvegarde
+
+        /// <summary>État complet de la partie (manche en cours comprise), à enregistrer pour la reprendre plus tard.</summary>
+        public MatchData ToData()
+        {
+            var data = new MatchData
+            {
+                Settings = Settings.ToData(),
+                Seed = _seed,
+                RoundsStarted = _roundsStarted,
+                RoundNumber = RoundNumber,
+                RoundsCompleted = RoundsCompleted,
+                RoundInProgress = _roundInProgress,
+                Points = new List<int>(_points),
+                ShitheadCounts = new List<int>(_shitheadCount),
+                HasGame = CurrentGame != null,
+                Game = CurrentGame?.ToData() ?? new GameData()
+            };
+            foreach (var p in _players)
+            {
+                data.FaceDownSlots.Add(p.FaceDownSlots);
+                data.FaceUpSlots.Add(p.FaceUpSlots);
+            }
+            return data;
+        }
+
+        /// <summary>
+        /// Rétablit une partie enregistrée, à l'identique : scores, cartes de chacun, manche en cours, et même
+        /// tirage des manches suivantes (la graine est rejouée). Lève une exception si les données sont incohérentes.
+        /// </summary>
+        public static Match FromData(MatchData data, StatsBook stats = null)
+        {
+            if (data == null) throw new InvalidOperationException("Partie enregistrée manquante.");
+            if (data.Version != MatchData.CurrentVersion)
+                throw new InvalidOperationException("Version de sauvegarde non prise en charge.");
+
+            var settings = MatchSettings.FromData(data.Settings);
+            var match = new Match(settings, data.Seed, stats);
+            int count = match._players.Count;
+
+            if (data.Points == null || data.Points.Count != count || data.ShitheadCounts == null
+                || data.ShitheadCounts.Count != count || data.FaceDownSlots == null || data.FaceDownSlots.Count != count
+                || data.FaceUpSlots == null || data.FaceUpSlots.Count != count)
+                throw new InvalidOperationException("Scores ou cartes par joueur incohérents.");
+
+            if (data.RoundsStarted < 0 || data.RoundsStarted > settings.RoundCount
+                || data.RoundsCompleted < 0 || data.RoundsCompleted > data.RoundsStarted
+                || data.RoundNumber < 0 || data.RoundNumber > data.RoundsStarted)
+                throw new InvalidOperationException("Numéros de manche incohérents.");
+
+            // On rejoue les tirages déjà faits : la prochaine manche sera distribuée comme l'originale.
+            for (int i = 0; i < data.RoundsStarted; i++) match._rng.Next();
+            match._roundsStarted = data.RoundsStarted;
+            match.RoundNumber = data.RoundNumber;
+            match.RoundsCompleted = data.RoundsCompleted;
+            match._roundInProgress = data.RoundInProgress;
+
+            for (int i = 0; i < count; i++)
+            {
+                match._points[i] = data.Points[i];
+                match._shitheadCount[i] = data.ShitheadCounts[i];
+                match._players[i].SetSlots(data.FaceDownSlots[i], data.FaceUpSlots[i]);
+            }
+
+            if (data.HasGame)
+                match.CurrentGame = Game.FromData(match._players, settings.Rules, data.Game);
+
+            if (data.RoundInProgress && (match.CurrentGame == null || match.CurrentGame.Phase == GamePhase.Finished))
+                throw new InvalidOperationException("Manche en cours incohérente.");
+            return match;
         }
 
         /// <summary>Enregistre les points de la manche une fois celle-ci terminée.</summary>

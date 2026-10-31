@@ -129,3 +129,9 @@ stats.empty,"Aucune statistique pour l'instant : terminez une manche pour les vo
 stats.hint,Les pourcentages sont calculés sur les manches et les parties terminées.,Percentages are based on finished rounds and games.
 stats.empty_rounds,Aucune manche terminée pour l'instant.,No finished round yet.
 stats.empty_matches,Aucune partie terminée pour l'instant.,No finished game yet.
+menu.saved.title,Partie en cours,Game in progress
+menu.saved.summary,{0} - {1} joueurs - manche {2}/{3},{0} - {1} players - round {2}/{3}
+menu.saved.resume,Reprendre la partie,Resume the game
+menu.replace_confirm,Remplacer la partie en cours ?,Replace the game in progress?
+table.save_quit,Sauvegarder et quitter,Save and quit
+table.confirm_abandon,Confirmer l'abandon,Confirm abandon

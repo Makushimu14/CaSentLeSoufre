@@ -120,6 +120,115 @@ namespace CaSentLeSoufre.Core
             List<Card> discard, int currentPlayer, int deckCount = 1)
             => new Game(players, rules, drawPile, discard, currentPlayer, deckCount);
 
+        // ---------------------------------------------------------------- Sauvegarde
+
+        /// <summary>État complet de la manche, à enregistrer pour la reprendre plus tard.</summary>
+        public GameData ToData()
+        {
+            var data = new GameData
+            {
+                Phase = (int)Phase,
+                CurrentPlayerIndex = CurrentPlayerIndex,
+                BurnedCount = BurnedCount,
+                Direction = Direction,
+                DeckCount = DeckCount,
+                LoserIndex = LoserIndex ?? -1,
+                IsStalemate = IsStalemate,
+                FinishOrder = new List<int>(_finishOrder),
+                Ready = new List<bool>(_ready),
+                DrawPile = CardData.FromList(_drawPile),
+                DiscardPile = CardData.FromList(_discardPile)
+            };
+
+            foreach (var p in _players)
+            {
+                data.Players.Add(new PlayerCardsData
+                {
+                    Hand = CardData.FromList(p.Hand),
+                    FaceUp = CardData.FromList(p.FaceUp),
+                    FaceDown = CardData.FromList(p.FaceDown),
+                    KnownInHand = CardData.FromList(p.KnownInHand)
+                });
+            }
+            return data;
+        }
+
+        /// <summary>
+        /// Rétablit une manche enregistrée. Les cartes sont remises dans les <paramref name="players"/> fournis.
+        /// Lève une exception si les données sont incohérentes (carte perdue ou en double, indice invalide...).
+        /// </summary>
+        public static Game FromData(IList<Player> players, RulesConfig rules, GameData data)
+        {
+            if (data == null) throw new InvalidOperationException("Manche enregistrée manquante.");
+            if (data.Players == null || data.Players.Count != players.Count)
+                throw new InvalidOperationException("Le nombre de joueurs enregistré ne correspond pas.");
+            if (!Enum.IsDefined(typeof(GamePhase), data.Phase))
+                throw new InvalidOperationException("Phase de jeu inconnue.");
+            if (data.CurrentPlayerIndex < 0 || data.CurrentPlayerIndex >= players.Count)
+                throw new InvalidOperationException("Joueur courant invalide.");
+            if (data.LoserIndex >= players.Count)
+                throw new InvalidOperationException("Dernier joueur invalide.");
+
+            for (int i = 0; i < players.Count; i++)
+            {
+                var player = players[i];
+                var saved = data.Players[i];
+                if (saved == null) throw new InvalidOperationException("Cartes d'un joueur manquantes.");
+
+                player.ClearCards();
+                player.Hand.AddRange(CardData.ToCards(saved.Hand));
+                player.FaceUp.AddRange(CardData.ToCards(saved.FaceUp));
+                player.FaceDown.AddRange(CardData.ToCards(saved.FaceDown));
+                player.KnownInHand.AddRange(CardData.ToCards(saved.KnownInHand));
+            }
+
+            var game = new Game(players, rules, CardData.ToCards(data.DrawPile), CardData.ToCards(data.DiscardPile),
+                data.CurrentPlayerIndex, data.DeckCount);
+            game.Phase = (GamePhase)data.Phase;
+            game.Direction = data.Direction < 0 ? -1 : 1;
+            game.BurnedCount = data.BurnedCount;
+            game.LoserIndex = data.LoserIndex >= 0 ? data.LoserIndex : (int?)null;
+            game.IsStalemate = data.IsStalemate;
+
+            foreach (int index in data.FinishOrder ?? new List<int>())
+            {
+                if (index < 0 || index >= players.Count) throw new InvalidOperationException("Ordre de sortie invalide.");
+                game._finishOrder.Add(index);
+            }
+
+            for (int i = 0; i < game._ready.Length && data.Ready != null && i < data.Ready.Count; i++)
+                game._ready[i] = data.Ready[i];
+
+            game.EnsureConsistent();
+            return game;
+        }
+
+        /// <summary>Aucune carte perdue ni créée, et les cartes « connues » sont bien en main.</summary>
+        private void EnsureConsistent()
+        {
+            int total = _drawPile.Count + _discardPile.Count + BurnedCount;
+            foreach (var p in _players)
+            {
+                total += p.TotalCards;
+
+                var inHand = new Dictionary<Card, int>();
+                foreach (var card in p.Hand)
+                {
+                    inHand.TryGetValue(card, out int count);
+                    inHand[card] = count + 1;
+                }
+                foreach (var card in p.KnownInHand)
+                {
+                    inHand.TryGetValue(card, out int count);
+                    if (count <= 0) throw new InvalidOperationException("Une carte connue n'est pas en main.");
+                    inHand[card] = count - 1;
+                }
+            }
+
+            if (total != TotalCardCount)
+                throw new InvalidOperationException($"Nombre de cartes incohérent : {total} au lieu de {TotalCardCount}.");
+        }
+
         // ---------------------------------------------------------------- Échange
 
         public bool IsReady(int playerIndex) => _ready[playerIndex];

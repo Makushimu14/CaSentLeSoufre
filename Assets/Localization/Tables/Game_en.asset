@@ -566,6 +566,30 @@ MonoBehaviour:
     m_Localized: No finished game yet.
     m_Metadata:
       m_Items: []
+  - m_Id: 43982510522368
+    m_Localized: Game in progress
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43982565048320
+    m_Localized: '{0} - {1} players - round {2}/{3}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43982565048321
+    m_Localized: Resume the game
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43982565048322
+    m_Localized: Replace the game in progress?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43982565048323
+    m_Localized: Save and quit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43982565048324
+    m_Localized: Confirm abandon
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

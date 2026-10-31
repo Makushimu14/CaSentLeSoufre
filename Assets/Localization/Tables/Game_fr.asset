@@ -566,6 +566,30 @@ MonoBehaviour:
     m_Localized: "Aucune partie termin\xE9e pour l'instant."
     m_Metadata:
       m_Items: []
+  - m_Id: 43982510522368
+    m_Localized: Partie en cours
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43982565048320
+    m_Localized: '{0} - {1} joueurs - manche {2}/{3}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43982565048321
+    m_Localized: Reprendre la partie
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43982565048322
+    m_Localized: Remplacer la partie en cours ?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43982565048323
+    m_Localized: Sauvegarder et quitter
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43982565048324
+    m_Localized: Confirmer l'abandon
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

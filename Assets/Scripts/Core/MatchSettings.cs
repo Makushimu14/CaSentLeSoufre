@@ -48,6 +48,64 @@ namespace CaSentLeSoufre.Core
             return copy;
         }
 
+        /// <summary>Copie enregistrable des réglages.</summary>
+        public SettingsData ToData()
+        {
+            var data = new SettingsData
+            {
+                Mode = (int)Rules.Mode,
+                FourOfAKindBurns = Rules.FourOfAKindBurns,
+                JumpIn = Rules.JumpIn,
+                AllowInitialSwap = Rules.AllowInitialSwap,
+                RoundCount = RoundCount,
+                HumanName = HumanName
+            };
+            foreach (var slot in Rules.Powers)
+                data.Powers.Add(new PowerPreference { Power = (int)slot.Power, Rank = slot.Rank });
+            foreach (var ai in Opponents)
+                data.Opponents.Add(new AiPreference { Name = ai.Name, Difficulty = (int)ai.Difficulty });
+            return data;
+        }
+
+        /// <summary>Rétablit des réglages enregistrés ; lève une exception s'ils sont invalides.</summary>
+        public static MatchSettings FromData(SettingsData data)
+        {
+            if (data == null) throw new InvalidOperationException("Réglages enregistrés manquants.");
+            if (!Enum.IsDefined(typeof(GameMode), data.Mode)) throw new InvalidOperationException("Mode inconnu.");
+
+            var rules = new RulesConfig
+            {
+                Mode = (GameMode)data.Mode,
+                FourOfAKindBurns = data.FourOfAKindBurns,
+                JumpIn = data.JumpIn,
+                AllowInitialSwap = data.AllowInitialSwap,
+                Powers = new List<PowerSlot>()
+            };
+            foreach (var saved in data.Powers ?? new List<PowerPreference>())
+            {
+                if (saved == null || !Enum.IsDefined(typeof(PowerType), saved.Power))
+                    throw new InvalidOperationException("Pouvoir inconnu.");
+                rules.Powers.Add(new PowerSlot((PowerType)saved.Power, saved.Rank));
+            }
+
+            var settings = new MatchSettings
+            {
+                Rules = rules,
+                RoundCount = data.RoundCount,
+                HumanName = data.HumanName ?? string.Empty
+            };
+            foreach (var saved in data.Opponents ?? new List<AiPreference>())
+            {
+                if (saved == null || !Enum.IsDefined(typeof(AiDifficulty), saved.Difficulty))
+                    throw new InvalidOperationException("Adversaire invalide.");
+                settings.Opponents.Add(new AiSetup(saved.Name ?? string.Empty, (AiDifficulty)saved.Difficulty));
+            }
+
+            var errors = settings.Validate();
+            if (errors.Count > 0) throw new InvalidOperationException("Réglages enregistrés invalides : " + string.Join(" ", errors));
+            return settings;
+        }
+
         public int PlayerCount => 1 + Opponents.Count;
         public int MaxPlayers => RulesConfig.MaxPlayersFor(Rules.Mode);
 

@@ -563,6 +563,30 @@ MonoBehaviour:
     m_Key: stats.empty_matches
     m_Metadata:
       m_Items: []
+  - m_Id: 43982510522368
+    m_Key: menu.saved.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43982565048320
+    m_Key: menu.saved.summary
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43982565048321
+    m_Key: menu.saved.resume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43982565048322
+    m_Key: menu.replace_confirm
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43982565048323
+    m_Key: table.save_quit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 43982565048324
+    m_Key: table.confirm_abandon
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

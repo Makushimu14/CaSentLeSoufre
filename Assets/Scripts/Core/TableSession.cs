@@ -111,6 +111,19 @@ namespace CaSentLeSoufre.Core
             ResetTimers();
         }
 
+        /// <summary>
+        /// Reprend une partie restaurée (<see cref="Match.FromData"/>) là où elle s'était arrêtée : au milieu d'une
+        /// manche, pendant l'échange, ou entre deux manches (résultats affichés). Les délais des IA repartent à zéro.
+        /// </summary>
+        public static TableSession Resume(Match match, TableTimings timings, int seed)
+        {
+            var session = new TableSession(match, timings, seed);
+            session._game = match.CurrentGame;
+            session.RoundOver = session._game == null || session._game.Phase == GamePhase.Finished;
+            session.ResetTimers();
+            return session;
+        }
+
         /// <summary>Session sur une manche déjà préparée, sans partie (tests et scénarios).</summary>
         public static TableSession ForGame(Game game, TableTimings timings, int seed) =>
             new TableSession(game, timings, seed);
