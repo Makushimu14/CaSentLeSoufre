@@ -73,3 +73,8 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# Outil de génération des cartes (Tools/CardArt) : on garde son projet, pas ses sorties de compilation
+!/Tools/**/*.csproj
+/Tools/**/bin/
+/Tools/**/obj/

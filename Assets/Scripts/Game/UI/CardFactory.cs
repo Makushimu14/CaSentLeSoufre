@@ -53,10 +53,24 @@ namespace CaSentLeSoufre.App.UI
         public static Button FaceAt(RectTransform container, Card card, Vector2 size, Vector2 position,
             Action onClick, CardState state)
         {
-            var button = NewCard(container, size, position, Cream, onClick, state);
+            var art = CardArt.Face(card);
+            var button = NewCard(container, size, position, Cream, art, onClick, state);
             var rect = (RectTransform)button.transform;
             var ink = IsRed(card.Suit) ? RedInk : BlackInk;
 
+            if (art != null)
+            {
+                // L'image porte le fond, les symboles et les figures ; la valeur, elle, est un texte localisé
+                // (V, D, R en français, J, Q, K en anglais), posé dans les deux coins à l'endroit laissé libre.
+                int fontSize = Mathf.Max(10, Mathf.RoundToInt(size.y * 0.155f));
+                Overlay(rect, RankText(card.Rank), fontSize, ink, FontStyle.Bold, TextAnchor.UpperLeft,
+                    size.x * 0.045f, size.y * 0.03f, 0, 0);
+                Overlay(rect, RankText(card.Rank), fontSize, ink, FontStyle.Bold, TextAnchor.LowerRight,
+                    0, 0, size.x * 0.045f, size.y * 0.03f);
+                return button;
+            }
+
+            // Repli sans image : la carte est dessinée par code.
             if (size.y >= 100)
             {
                 Overlay(rect, RankText(card.Rank), Mathf.RoundToInt(size.y * 0.24f), ink, FontStyle.Bold,
@@ -89,9 +103,12 @@ namespace CaSentLeSoufre.App.UI
         public static Button BackAt(RectTransform container, Vector2 size, Vector2 position, Action onClick,
             CardState state)
         {
-            var button = NewCard(container, size, position, BackColor, onClick, state);
-            var rect = (RectTransform)button.transform;
+            var art = CardArt.Back();
+            var button = NewCard(container, size, position, BackColor, art, onClick, state);
+            if (art != null) return button;
 
+            // Repli sans image : un motif simple dessiné par code.
+            var rect = (RectTransform)button.transform;
             var inner = UiFactory.NewRect("Pattern", rect);
             UiFactory.Stretch(inner, size.x * 0.12f, size.y * 0.09f, size.x * 0.12f, size.y * 0.09f);
             var image = inner.gameObject.AddComponent<Image>();
@@ -128,8 +145,12 @@ namespace CaSentLeSoufre.App.UI
             return slot;
         }
 
+        /// <summary>
+        /// Crée la carte. Avec une image, c'est un <see cref="RawImage"/> (texture quelle que soit la façon dont
+        /// Unity l'a importée) ; sans image, un aplat de couleur.
+        /// </summary>
         private static Button NewCard(RectTransform container, Vector2 size, Vector2 position, Color background,
-            Action onClick, CardState state)
+            Texture2D art, Action onClick, CardState state)
         {
             var card = UiFactory.NewRect("Card", container);
             card.anchorMin = card.anchorMax = Vector2.zero;
@@ -137,8 +158,20 @@ namespace CaSentLeSoufre.App.UI
             card.sizeDelta = size;
             card.anchoredPosition = position + new Vector2(0, state.Selected ? Raise : 0);
 
-            var image = card.gameObject.AddComponent<Image>();
-            image.color = background;
+            Graphic graphic;
+            if (art != null)
+            {
+                var raw = card.gameObject.AddComponent<RawImage>();
+                raw.texture = art;
+                raw.color = Color.white;
+                graphic = raw;
+            }
+            else
+            {
+                var image = card.gameObject.AddComponent<Image>();
+                image.color = background;
+                graphic = image;
+            }
 
             if (state.Selected || state.Highlight)
             {
@@ -150,7 +183,7 @@ namespace CaSentLeSoufre.App.UI
             if (state.Dimmed) card.gameObject.AddComponent<CanvasGroup>().alpha = 0.45f;
 
             var button = card.gameObject.AddComponent<Button>();
-            button.targetGraphic = image;
+            button.targetGraphic = graphic;
             button.interactable = state.Interactable;
             var colors = button.colors;
             colors.normalColor = Color.white;
