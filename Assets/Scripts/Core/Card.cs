@@ -29,6 +29,9 @@ namespace CaSentLeSoufre.Core
             Suit = suit;
         }
 
+        /// <summary>Les « têtes » : valet, dame et roi (l'as n'en fait pas partie).</summary>
+        public static bool IsFace(int rank) => rank >= Jack && rank <= King;
+
         public bool Equals(Card other) => Rank == other.Rank && Suit == other.Suit;
         public override bool Equals(object obj) => obj is Card other && Equals(other);
         public override int GetHashCode() => Rank * 4 + (int)Suit;

@@ -19,6 +19,10 @@ namespace CaSentLeSoufre.Tests
             return rules;
         }
 
+        /// <summary>Les 9 pouvoirs actifs en même temps, sur les valeurs 2 à 10.</summary>
+        private static RulesConfig AllPowers() => RulesConfig.WithPowers(
+            PowerCatalog.All.Select((p, i) => new PowerSlot(p, 2 + i)).ToArray());
+
         /// <summary>3 joueurs en phase de jeu : A (main donnée) joue en premier ; B et C ont de quoi tenir.</summary>
         private static Game Setup3(IEnumerable<Card> hand0, RulesConfig rules, IEnumerable<Card> discard = null)
         {
@@ -300,6 +304,8 @@ namespace CaSentLeSoufre.Tests
                 RulesConfig.WithPowers(new PowerSlot(PowerType.Skip), new PowerSlot(PowerType.Reverse),
                     new PowerSlot(PowerType.ForcePickUp), new PowerSlot(PowerType.PlayAgain)),
                 Rules(PowerType.Skip, PowerType.Reverse),
+                Rules(PowerType.SameOrFace, PowerType.Transparent),
+                AllPowers(),
                 new RulesConfig { JumpIn = true, AllowInitialSwap = false },
                 new RulesConfig { JumpIn = true, Mode = GameMode.Demon,
                     Powers = RulesConfig.DefaultPowers() }
@@ -536,13 +542,56 @@ namespace CaSentLeSoufre.Tests
         }
 
         [Test]
+        public void Power_SameOrFace_AllowsOnlySameValueOrAFaceCard()
+        {
+            var game = Setup3(new[] { C(13) }, Rules(PowerType.SameOrFace), new[] { C(9), C(7) });
+
+            Assert.IsTrue(game.CanPlayRank(7), "Le même 7");
+            Assert.IsTrue(game.CanPlayRank(Card.Jack));
+            Assert.IsTrue(game.CanPlayRank(Card.Queen));
+            Assert.IsTrue(game.CanPlayRank(Card.King));
+            Assert.IsTrue(game.CanPlayRank(2), "La remise à zéro reste jouable partout");
+            Assert.IsTrue(game.CanPlayRank(10), "La brûlure aussi");
+
+            Assert.IsFalse(game.CanPlayRank(5), "Plus bas : refusé");
+            Assert.IsFalse(game.CanPlayRank(8), "Plus haut mais ni 7 ni tête : refusé");
+            Assert.IsFalse(game.CanPlayRank(9));
+            Assert.IsFalse(game.CanPlayRank(Card.Ace), "L'as n'est pas une tête");
+        }
+
+        [Test]
+        public void Power_SameOrFace_WorksOnAnyRank_AndLeavesOtherCardsAlone()
+        {
+            var rules = RulesConfig.WithPowers(new PowerSlot(PowerType.SameOrFace, 4), new PowerSlot(PowerType.Reset));
+            var onFour = Setup3(new[] { C(13) }, rules, new[] { C(4) });
+            Assert.IsTrue(onFour.CanPlayRank(4));
+            Assert.IsTrue(onFour.CanPlayRank(Card.Queen));
+            Assert.IsFalse(onFour.CanPlayRank(6));
+
+            // Sur un 7 ordinaire (sans pouvoir ici), la règle habituelle s'applique.
+            var onSeven = Setup3(new[] { C(13) }, rules, new[] { C(7) });
+            Assert.IsTrue(onSeven.CanPlayRank(8));
+            Assert.IsFalse(onSeven.CanPlayRank(5));
+        }
+
+        [Test]
+        public void Power_SameOrFace_CanBePlayedAndFollowedByAFace()
+        {
+            var game = Setup3(new[] { C(7), C(13) }, Rules(PowerType.SameOrFace));
+            Assert.IsTrue(game.Play(0, new[] { C(7) }).Ok);
+            Assert.AreEqual(1, game.CurrentPlayerIndex);
+            Assert.AreEqual(MoveError.NotPlayable, game.Play(1, new[] { C(9, Suit.Hearts) }).Error);
+            Assert.IsTrue(game.Play(1, new[] { C(12, Suit.Hearts) }).Ok, "Une dame est une tête");
+        }
+
+        [Test]
         public void Powers_Validation()
         {
             Assert.IsEmpty(new RulesConfig().Validate());
             Assert.IsEmpty(RulesConfig.WithPowers().Validate(), "Zéro pouvoir est permis");
 
-            var five = new RulesConfig { Powers = PowerCatalog.All.Take(5).Select(p => new PowerSlot(p)).ToList() };
-            Assert.IsNotEmpty(five.Validate(), "Plus de 4 pouvoirs");
+            // Plus aucune limite de nombre : tout le catalogue peut être actif, chaque pouvoir sur sa propre valeur.
+            Assert.IsEmpty(AllPowers().Validate());
 
             var dupRank = RulesConfig.WithPowers(new PowerSlot(PowerType.Skip, 8), new PowerSlot(PowerType.Reverse, 8));
             Assert.IsNotEmpty(dupRank.Validate());
@@ -598,8 +647,12 @@ namespace CaSentLeSoufre.Tests
         [Test]
         public void EveryPower_HasDefaultRank_AndDistinctRanks()
         {
-            var ranks = PowerCatalog.All.Select(PowerCatalog.DefaultRank).ToList();
+            // « Plus bas » et « même valeur ou tête » sont deux variantes du 7 : elles partagent leur valeur
+            // traditionnelle, et le modèle de configuration leur donne des valeurs distinctes si on les cumule.
+            var ranks = PowerCatalog.All.Where(p => p != PowerType.SameOrFace)
+                .Select(PowerCatalog.DefaultRank).ToList();
             Assert.AreEqual(ranks.Count, ranks.Distinct().Count());
+            Assert.AreEqual(PowerCatalog.DefaultRank(PowerType.LowerOrEqual), PowerCatalog.DefaultRank(PowerType.SameOrFace));
             Assert.AreEqual(Enum.GetValues(typeof(PowerType)).Length, PowerCatalog.All.Length);
         }
 

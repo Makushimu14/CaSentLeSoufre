@@ -22,9 +22,6 @@ namespace CaSentLeSoufre.Core
         /// <summary>Taille de la main, et nombre initial de cartes visibles / cachées par joueur.</summary>
         public const int HandSize = 3;
 
-        /// <summary>Nombre maximal de pouvoirs de cartes actifs en même temps.</summary>
-        public const int MaxPowers = 4;
-
         /// <summary>Cartes minimales à garder en pioche après la distribution (détermine le nombre de paquets).</summary>
         public const int MinDrawPileSize = 7;
 
@@ -47,7 +44,8 @@ namespace CaSentLeSoufre.Core
         public bool FourOfAKindBurns = true;
 
         /// <summary>
-        /// Pouvoirs actifs (au plus <see cref="MaxPowers"/>), chacun associé à une valeur de carte.
+        /// Pouvoirs actifs, chacun associé à une valeur de carte. Aucune limite de nombre : chaque pouvoir
+        /// et chaque valeur ne servent qu'une fois, ce qui borne naturellement la liste.
         /// Par défaut : 2 = remise à zéro, 10 = brûlure.
         /// </summary>
         public List<PowerSlot> Powers = DefaultPowers();
@@ -62,6 +60,16 @@ namespace CaSentLeSoufre.Core
         public bool AllowInitialSwap = true;
 
         public static RulesConfig Classic => new RulesConfig();
+
+        /// <summary>Copie indépendante des règles.</summary>
+        public RulesConfig Clone() => new RulesConfig
+        {
+            Mode = Mode,
+            FourOfAKindBurns = FourOfAKindBurns,
+            Powers = Powers == null ? null : new List<PowerSlot>(Powers),
+            JumpIn = JumpIn,
+            AllowInitialSwap = AllowInitialSwap
+        };
 
         public static List<PowerSlot> DefaultPowers() => new List<PowerSlot>
         {
@@ -110,9 +118,6 @@ namespace CaSentLeSoufre.Core
                 errors.Add(new LocalizedMessage("validation.powers_missing"));
                 return errors;
             }
-
-            if (Powers.Count > MaxPowers)
-                errors.Add(new LocalizedMessage("validation.powers_too_many", MaxPowers, Powers.Count));
 
             var powers = new HashSet<PowerType>();
             var ranks = new HashSet<int>();

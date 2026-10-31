@@ -163,6 +163,186 @@ MonoBehaviour:
     m_Key: game.title
     m_Metadata:
       m_Items: []
+  - m_Id: 15599516942336
+    m_Key: menu.section.rules
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662592
+    m_Key: menu.mode.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662593
+    m_Key: mode.Classic.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662594
+    m_Key: mode.Demon.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662595
+    m_Key: menu.section.players
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662596
+    m_Key: menu.you
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662597
+    m_Key: menu.name_placeholder
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662598
+    m_Key: menu.add_opponent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662599
+    m_Key: menu.remove_opponent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662600
+    m_Key: menu.section.rounds
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662601
+    m_Key: menu.rounds.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662602
+    m_Key: menu.section.powers
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662603
+    m_Key: menu.powers.hint
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662604
+    m_Key: menu.power.value
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662605
+    m_Key: menu.section.options
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662606
+    m_Key: option.four_of_a_kind.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662607
+    m_Key: option.four_of_a_kind.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662608
+    m_Key: option.jump_in.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662609
+    m_Key: option.jump_in.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662610
+    m_Key: option.initial_swap.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662611
+    m_Key: option.initial_swap.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662612
+    m_Key: menu.start
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662613
+    m_Key: menu.errors.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662614
+    m_Key: menu.start_pending
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662615
+    m_Key: menu.language
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662616
+    m_Key: language.fr
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662617
+    m_Key: language.en
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662618
+    m_Key: card.rankname.11
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662619
+    m_Key: card.rankname.12
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662620
+    m_Key: card.rankname.13
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662621
+    m_Key: card.rankname.14
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488312033280
+    m_Key: power.SameOrFace.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753536
+    m_Key: power.SameOrFace.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753537
+    m_Key: menu.settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753538
+    m_Key: menu.back
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753539
+    m_Key: menu.quick.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753540
+    m_Key: menu.players.count
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753541
+    m_Key: menu.versus
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753542
+    m_Key: menu.fix_settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753543
+    m_Key: menu.section.profile
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753544
+    m_Key: menu.profile.name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753545
+    m_Key: menu.section.opponents
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753546
+    m_Key: menu.opponents.hint
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753547
+    m_Key: menu.unused
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753548
+    m_Key: menu.autosave
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

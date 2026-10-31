@@ -16,11 +16,33 @@ namespace CaSentLeSoufre.Tests
     {
         private static readonly string[] ValidationKeys =
         {
-            "validation.rules_missing", "validation.powers_missing", "validation.powers_too_many",
+            "validation.rules_missing", "validation.powers_missing",
             "validation.rank_invalid", "validation.rank_duplicate", "validation.power_duplicate",
             "validation.players_count", "validation.rounds_range", "validation.name_required",
             "validation.name_too_long", "validation.name_duplicate"
         };
+
+        /// <summary>Clés utilisées par l'interface (menu de configuration).</summary>
+        private static readonly string[] MenuKeys =
+        {
+            "game.title", "menu.section.rules", "menu.mode.label", "mode.Classic.description",
+            "mode.Demon.description", "menu.you", "menu.name_placeholder", "menu.rounds.label",
+            "menu.settings", "menu.back", "menu.quick.title", "menu.players.count", "menu.versus",
+            "menu.fix_settings", "menu.section.profile", "menu.profile.name", "menu.section.opponents",
+            "menu.opponents.hint", "menu.unused", "menu.autosave",
+            "menu.section.powers", "menu.powers.hint", "menu.power.value", "menu.section.options",
+            "option.four_of_a_kind.label", "option.four_of_a_kind.description", "option.jump_in.label",
+            "option.jump_in.description", "option.initial_swap.label", "option.initial_swap.description",
+            "menu.start", "menu.errors.title", "menu.start_pending", "menu.language", "language.fr", "language.en",
+            "card.rankname.11", "card.rankname.12", "card.rankname.13", "card.rankname.14"
+        };
+
+        [Test]
+        public void Csv_ContainsEveryKeyTheMenuUses()
+        {
+            var keys = LoadCsv().Skip(1).Select(r => r[0]).ToList();
+            foreach (var key in MenuKeys) Assert.Contains(key, keys, key);
+        }
 
         private static List<List<string>> LoadCsv()
         {

@@ -166,6 +166,186 @@ MonoBehaviour:
     m_Localized: "\xC7a Sent le Soufre"
     m_Metadata:
       m_Items: []
+  - m_Id: 15599516942336
+    m_Localized: "R\xE8gles"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662592
+    m_Localized: Mode de jeu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662593
+    m_Localized: "Les r\xE8gles officielles du Trois-Trois."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662594
+    m_Localized: "Jusqu'\xE0 10 joueurs. \xC0 chaque manche, le dernier re\xE7oit une carte cach\xE9e et une visible de plus ; le premier en perd une de chaque."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662595
+    m_Localized: Joueurs ({0}/{1})
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662596
+    m_Localized: Vous
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662597
+    m_Localized: Nom
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662598
+    m_Localized: + Ajouter un adversaire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662599
+    m_Localized: Retirer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662600
+    m_Localized: Manches
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662601
+    m_Localized: Nombre de manches
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662602
+    m_Localized: Pouvoirs de cartes ({0}/{1})
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662603
+    m_Localized: Activez les pouvoirs que vous voulez et choisissez la valeur de carte qui porte chacun.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662604
+    m_Localized: Valeur
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662605
+    m_Localized: Options
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662606
+    m_Localized: "Le carr\xE9 br\xFBle la d\xE9fausse"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662607
+    m_Localized: "Quatre cartes de m\xEAme valeur de suite br\xFBlent la d\xE9fausse et le joueur rejoue."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662608
+    m_Localized: "Jeu \xE0 la vol\xE9e"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662609
+    m_Localized: "Jouez hors de votre tour une carte de m\xEAme valeur que celle du dessus de la d\xE9fausse."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662610
+    m_Localized: "\xC9change de d\xE9but de manche"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662611
+    m_Localized: "\xC9changez des cartes de votre main avec vos cartes visibles avant de jouer."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662612
+    m_Localized: Lancer la partie
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662613
+    m_Localized: "R\xE9glages \xE0 corriger"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662614
+    m_Localized: La table de jeu n'est pas encore disponible.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662615
+    m_Localized: Langue
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662616
+    m_Localized: "Fran\xE7ais"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662617
+    m_Localized: English
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662618
+    m_Localized: Valet
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662619
+    m_Localized: Dame
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662620
+    m_Localized: Roi
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662621
+    m_Localized: As
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488312033280
+    m_Localized: "M\xEAme valeur ou t\xEAte"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753536
+    m_Localized: "Le suivant doit jouer la m\xEAme valeur ou une t\xEAte (valet, dame, roi)."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753537
+    m_Localized: "Param\xE8tres"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753538
+    m_Localized: Retour
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753539
+    m_Localized: Partie rapide
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753540
+    m_Localized: Nombre de joueurs
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753541
+    m_Localized: 'Adversaires : {0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753542
+    m_Localized: "Corrigez vos param\xE8tres pour pouvoir jouer."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753543
+    m_Localized: Votre profil
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753544
+    m_Localized: Votre nom
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753545
+    m_Localized: Adversaires (IA)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753546
+    m_Localized: "Ces adversaires sont m\xE9moris\xE9s. Selon le nombre de joueurs choisi, seuls les premiers jouent."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753547
+    m_Localized: "inutilis\xE9"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753548
+    m_Localized: "Vos param\xE8tres sont enregistr\xE9s automatiquement."
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

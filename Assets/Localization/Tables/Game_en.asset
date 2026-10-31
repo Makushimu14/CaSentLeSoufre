@@ -166,6 +166,186 @@ MonoBehaviour:
     m_Localized: "\xC7a Sent le Soufre"
     m_Metadata:
       m_Items: []
+  - m_Id: 15599516942336
+    m_Localized: Rules
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662592
+    m_Localized: Game mode
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662593
+    m_Localized: The official rules of the game.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662594
+    m_Localized: Up to 10 players. Each round, the last player gets one more face-down and one more face-up card; the first player loses one of each.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662595
+    m_Localized: Players ({0}/{1})
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662596
+    m_Localized: You
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662597
+    m_Localized: Name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662598
+    m_Localized: + Add an opponent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662599
+    m_Localized: Remove
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662600
+    m_Localized: Rounds
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662601
+    m_Localized: Number of rounds
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662602
+    m_Localized: Card powers ({0}/{1})
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662603
+    m_Localized: Turn on the powers you want and choose the card value that carries each one.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662604
+    m_Localized: Value
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662605
+    m_Localized: Options
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662606
+    m_Localized: Four of a kind burns the pile
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662607
+    m_Localized: Four cards of the same value in a row burn the pile and the player plays again.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662608
+    m_Localized: Jump-in play
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662609
+    m_Localized: Play out of turn a card matching the one on top of the discard pile.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662610
+    m_Localized: Swap at the start of a round
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662611
+    m_Localized: Swap cards from your hand with your face-up cards before playing.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662612
+    m_Localized: Start game
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662613
+    m_Localized: Settings to fix
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662614
+    m_Localized: The game table is not available yet.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662615
+    m_Localized: Language
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662616
+    m_Localized: "Fran\xE7ais"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662617
+    m_Localized: English
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662618
+    m_Localized: Jack
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662619
+    m_Localized: Queen
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662620
+    m_Localized: King
+    m_Metadata:
+      m_Items: []
+  - m_Id: 15599575662621
+    m_Localized: Ace
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488312033280
+    m_Localized: Same value or face card
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753536
+    m_Localized: The next player must play the same value or a face card (jack, queen, king).
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753537
+    m_Localized: Settings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753538
+    m_Localized: Back
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753539
+    m_Localized: Quick game
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753540
+    m_Localized: Number of players
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753541
+    m_Localized: 'Opponents: {0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753542
+    m_Localized: Fix your settings to be able to play.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753543
+    m_Localized: Your profile
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753544
+    m_Localized: Your name
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753545
+    m_Localized: Opponents (AI)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753546
+    m_Localized: These opponents are remembered. Depending on the number of players, only the first ones play.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753547
+    m_Localized: unused
+    m_Metadata:
+      m_Items: []
+  - m_Id: 19488370753548
+    m_Localized: Your settings are saved automatically.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

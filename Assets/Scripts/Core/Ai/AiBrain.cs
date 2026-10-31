@@ -25,7 +25,7 @@ namespace CaSentLeSoufre.Core.Ai
                 case PowerType.Skip: return 18;
                 case PowerType.Reverse:
                 case PowerType.PlayAgain: return 17;
-                default: return 16; // LowerOrEqual
+                default: return 16; // LowerOrEqual, SameOrFace
             }
         }
 

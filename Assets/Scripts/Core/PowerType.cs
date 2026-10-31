@@ -1,6 +1,6 @@
 namespace CaSentLeSoufre.Core
 {
-    /// <summary>Tous les pouvoirs de cartes connus. Le joueur en choisit jusqu'à 4 et leur associe une valeur.</summary>
+    /// <summary>Tous les pouvoirs de cartes connus. Le joueur active ceux qu'il veut et leur associe une valeur.</summary>
     public enum PowerType
     {
         /// <summary>Remise à zéro : jouable sur tout, et on peut jouer n'importe quoi dessus (le 2).</summary>
@@ -25,7 +25,13 @@ namespace CaSentLeSoufre.Core
         ForcePickUp,
 
         /// <summary>Le joueur rejoue immédiatement (le 5).</summary>
-        PlayAgain
+        PlayAgain,
+
+        /// <summary>
+        /// Le joueur suivant doit jouer la même valeur ou une tête (valet, dame, roi) (le 7).
+        /// À ajouter en fin d'énumération : les valeurs numériques sont enregistrées dans les préférences.
+        /// </summary>
+        SameOrFace
     }
 
     public readonly struct PowerSlot
@@ -49,7 +55,7 @@ namespace CaSentLeSoufre.Core
         public static readonly PowerType[] All =
         {
             PowerType.Reset, PowerType.Burn, PowerType.Transparent, PowerType.LowerOrEqual,
-            PowerType.Skip, PowerType.Reverse, PowerType.ForcePickUp, PowerType.PlayAgain
+            PowerType.SameOrFace, PowerType.Skip, PowerType.Reverse, PowerType.ForcePickUp, PowerType.PlayAgain
         };
 
         /// <summary>Valeur traditionnellement associée au pouvoir.</summary>
@@ -61,6 +67,7 @@ namespace CaSentLeSoufre.Core
                 case PowerType.Transparent: return 3;
                 case PowerType.PlayAgain: return 5;
                 case PowerType.LowerOrEqual: return 7;
+                case PowerType.SameOrFace: return 7; // variante alternative au « plus bas » traditionnel
                 case PowerType.Skip: return 8;
                 case PowerType.Reverse: return 9;
                 case PowerType.Burn: return 10;

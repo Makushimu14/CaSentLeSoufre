@@ -3,7 +3,10 @@
     "rootNamespace": "CaSentLeSoufre.App",
     "references": [
         "CaSentLeSoufre.Core",
-        "Unity.Localization"
+        "Unity.Localization",
+        "Unity.ResourceManager",
+        "Unity.InputSystem",
+        "UnityEngine.UI"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

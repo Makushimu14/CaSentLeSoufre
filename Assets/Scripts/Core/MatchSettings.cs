@@ -35,6 +35,19 @@ namespace CaSentLeSoufre.Core
         /// <summary>Adversaires IA, dans l'ordre de la table (le joueur humain est toujours le joueur 0).</summary>
         public List<AiSetup> Opponents = new List<AiSetup>();
 
+        /// <summary>Copie indépendante des réglages (règles et adversaires compris).</summary>
+        public MatchSettings Clone()
+        {
+            var copy = new MatchSettings
+            {
+                Rules = Rules?.Clone(),
+                RoundCount = RoundCount,
+                HumanName = HumanName
+            };
+            foreach (var o in Opponents) copy.Opponents.Add(new AiSetup(o.Name, o.Difficulty));
+            return copy;
+        }
+
         public int PlayerCount => 1 + Opponents.Count;
         public int MaxPlayers => RulesConfig.MaxPlayersFor(Rules.Mode);
 
@@ -64,7 +77,15 @@ namespace CaSentLeSoufre.Core
 
             var names = new List<string> { HumanName };
             foreach (var o in Opponents) names.Add(o?.Name);
+            errors.AddRange(ValidateNames(names));
 
+            return errors;
+        }
+
+        /// <summary>Noms non vides, d'au plus <see cref="MaxNameLength"/> caractères et uniques (casse ignorée).</summary>
+        public static List<LocalizedMessage> ValidateNames(IEnumerable<string> names)
+        {
+            var errors = new List<LocalizedMessage>();
             var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var raw in names)
             {
@@ -76,7 +97,6 @@ namespace CaSentLeSoufre.Core
                 else if (!seen.Add(name))
                     errors.Add(new LocalizedMessage("validation.name_duplicate", name));
             }
-
             return errors;
         }
     }

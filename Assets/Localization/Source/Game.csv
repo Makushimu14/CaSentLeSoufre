@@ -1,7 +1,6 @@
 Key,fr,en
 validation.rules_missing,Les règles sont manquantes.,The rules are missing.
 validation.powers_missing,La liste des pouvoirs est manquante.,The list of powers is missing.
-validation.powers_too_many,Au plus {0} pouvoirs peuvent être actifs (vous en avez {1}).,At most {0} powers can be active (you have {1}).
 validation.rank_invalid,La valeur {0} n'est pas une valeur de carte valide.,{0} is not a valid card value.
 validation.rank_duplicate,La valeur {0} porte déjà un pouvoir.,The value {0} already has a power.
 validation.power_duplicate,Le pouvoir « {0} » est choisi plusieurs fois.,"The power ""{0}"" is selected more than once."
@@ -36,3 +35,44 @@ difficulty.Easy.label,Facile,Easy
 difficulty.Normal.label,Normale,Normal
 difficulty.Hard.label,Difficile,Hard
 game.title,Ça Sent le Soufre,Ça Sent le Soufre
+menu.section.rules,Règles,Rules
+menu.mode.label,Mode de jeu,Game mode
+mode.Classic.description,"Les règles officielles du Trois-Trois.",The official rules of the game.
+mode.Demon.description,"Jusqu'à 10 joueurs. À chaque manche, le dernier reçoit une carte cachée et une visible de plus ; le premier en perd une de chaque.","Up to 10 players. Each round, the last player gets one more face-down and one more face-up card; the first player loses one of each."
+menu.you,Vous,You
+menu.name_placeholder,Nom,Name
+menu.rounds.label,Nombre de manches,Number of rounds
+menu.section.powers,Pouvoirs de cartes ({0}/{1}),Card powers ({0}/{1})
+menu.powers.hint,Activez les pouvoirs que vous voulez et choisissez la valeur de carte qui porte chacun.,Turn on the powers you want and choose the card value that carries each one.
+menu.power.value,Valeur,Value
+menu.section.options,Options,Options
+option.four_of_a_kind.label,Le carré brûle la défausse,Four of a kind burns the pile
+option.four_of_a_kind.description,"Quatre cartes de même valeur de suite brûlent la défausse et le joueur rejoue.","Four cards of the same value in a row burn the pile and the player plays again."
+option.jump_in.label,Jeu à la volée,Jump-in play
+option.jump_in.description,"Jouez hors de votre tour une carte de même valeur que celle du dessus de la défausse.","Play out of turn a card matching the one on top of the discard pile."
+option.initial_swap.label,Échange de début de manche,Swap at the start of a round
+option.initial_swap.description,"Échangez des cartes de votre main avec vos cartes visibles avant de jouer.","Swap cards from your hand with your face-up cards before playing."
+menu.start,Lancer la partie,Start game
+menu.errors.title,Réglages à corriger,Settings to fix
+menu.start_pending,La table de jeu n'est pas encore disponible.,The game table is not available yet.
+menu.language,Langue,Language
+language.fr,Français,Français
+language.en,English,English
+card.rankname.11,Valet,Jack
+card.rankname.12,Dame,Queen
+card.rankname.13,Roi,King
+card.rankname.14,As,Ace
+power.SameOrFace.label,Même valeur ou tête,Same value or face card
+power.SameOrFace.description,"Le suivant doit jouer la même valeur ou une tête (valet, dame, roi).","The next player must play the same value or a face card (jack, queen, king)."
+menu.settings,Paramètres,Settings
+menu.back,Retour,Back
+menu.quick.title,Partie rapide,Quick game
+menu.players.count,Nombre de joueurs,Number of players
+menu.versus,Adversaires : {0},Opponents: {0}
+menu.fix_settings,Corrigez vos paramètres pour pouvoir jouer.,Fix your settings to be able to play.
+menu.section.profile,Votre profil,Your profile
+menu.profile.name,Votre nom,Your name
+menu.section.opponents,Adversaires (IA),Opponents (AI)
+menu.opponents.hint,"Ces adversaires sont mémorisés. Selon le nombre de joueurs choisi, seuls les premiers jouent.","These opponents are remembered. Depending on the number of players, only the first ones play."
+menu.unused,inutilisé,unused
+menu.autosave,Vos paramètres sont enregistrés automatiquement.,Your settings are saved automatically.

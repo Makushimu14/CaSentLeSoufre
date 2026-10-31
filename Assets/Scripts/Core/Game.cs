@@ -200,6 +200,7 @@ namespace CaSentLeSoufre.Core
             var topPower = Rules.PowerOf(top.Value.Rank);
             if (topPower == PowerType.Reset) return true;
             if (topPower == PowerType.LowerOrEqual) return rank <= top.Value.Rank;
+            if (topPower == PowerType.SameOrFace) return rank == top.Value.Rank || Card.IsFace(rank);
             return rank >= top.Value.Rank;
         }
 
