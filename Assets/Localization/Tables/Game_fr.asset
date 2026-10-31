@@ -1,0 +1,171 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Game_fr
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: fr
+  m_SharedData: {fileID: 11400000, guid: efacaa820cfb14f4fbc97e057169c67e, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 1051361280
+    m_Localized: "Les r\xE8gles sont manquantes."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1135247360
+    m_Localized: La liste des pouvoirs est manquante.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1139441664
+    m_Localized: "Au plus {0} pouvoirs peuvent \xEAtre actifs (vous en avez {1})."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1139441665
+    m_Localized: La valeur {0} n'est pas une valeur de carte valide.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635968
+    m_Localized: "La valeur {0} porte d\xE9j\xE0 un pouvoir."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635969
+    m_Localized: "Le pouvoir \xAB {0} \xBB est choisi plusieurs fois."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635970
+    m_Localized: Il faut entre {0} et {1} joueurs dans ce mode (vous en avez {2}).
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635971
+    m_Localized: "Le nombre de manches doit \xEAtre compris entre {0} et {1}."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635972
+    m_Localized: Chaque joueur doit avoir un nom.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635973
+    m_Localized: "Le nom \xAB {0} \xBB d\xE9passe {1} caract\xE8res."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635974
+    m_Localized: "Le nom \xAB {0} \xBB est utilis\xE9 plusieurs fois."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635975
+    m_Localized: "Remise \xE0 z\xE9ro"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635976
+    m_Localized: Jouable sur tout. Le suivant peut jouer n'importe quelle carte.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635977
+    m_Localized: "Br\xFBlure"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635978
+    m_Localized: "Jouable sur tout. Br\xFBle la d\xE9fausse et vous rejouez."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635979
+    m_Localized: Transparent
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635980
+    m_Localized: "Jouable sur tout. Le suivant doit battre la carte situ\xE9e dessous."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635981
+    m_Localized: Plus bas
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635982
+    m_Localized: "Le suivant doit jouer une carte de valeur inf\xE9rieure ou \xE9gale."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635983
+    m_Localized: Saute un tour
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635984
+    m_Localized: "Le suivant passe son tour (un joueur de plus par carte jou\xE9e)."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635985
+    m_Localized: Inverse le sens
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635986
+    m_Localized: Le sens du jeu s'inverse.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635987
+    m_Localized: "Ramassage forc\xE9"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635988
+    m_Localized: "Le suivant ramasse la d\xE9fausse et passe son tour."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635989
+    m_Localized: Rejouer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635990
+    m_Localized: "Vous rejouez imm\xE9diatement."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635991
+    m_Localized: V
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635992
+    m_Localized: D
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635993
+    m_Localized: R
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635994
+    m_Localized: A
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635995
+    m_Localized: "R\xE8gles officielles"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635996
+    m_Localized: "Mode d\xE9mon"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635997
+    m_Localized: Facile
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635998
+    m_Localized: Normale
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635999
+    m_Localized: Difficile
+    m_Metadata:
+      m_Items: []
+  - m_Id: 728192679936
+    m_Localized: "\xC7a Sent le Soufre"
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

@@ -1,0 +1,115 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text.RegularExpressions;
+using CaSentLeSoufre.Core;
+using NUnit.Framework;
+
+namespace CaSentLeSoufre.Tests
+{
+    /// <summary>
+    /// Vérifie que le CSV source (Assets/Localization/Source/Game.csv) traduit toutes les clés que le moteur
+    /// peut émettre, dans toutes les langues, avec les mêmes paramètres {0}, {1}...
+    /// </summary>
+    public class LocalizationSourceTests
+    {
+        private static readonly string[] ValidationKeys =
+        {
+            "validation.rules_missing", "validation.powers_missing", "validation.powers_too_many",
+            "validation.rank_invalid", "validation.rank_duplicate", "validation.power_duplicate",
+            "validation.players_count", "validation.rounds_range", "validation.name_required",
+            "validation.name_too_long", "validation.name_duplicate"
+        };
+
+        private static List<List<string>> LoadCsv()
+        {
+            string root = Environment.GetEnvironmentVariable("CSL_PROJECT_ROOT") ?? Directory.GetCurrentDirectory();
+            string relative = Path.Combine("Assets", "Localization", "Source", "Game.csv");
+            var dir = new DirectoryInfo(root);
+            while (dir != null && !File.Exists(Path.Combine(dir.FullName, relative))) dir = dir.Parent;
+            Assert.IsNotNull(dir, "Game.csv introuvable à partir de " + root);
+            return ParseCsv(File.ReadAllText(Path.Combine(dir.FullName, relative)));
+        }
+
+        private static List<List<string>> ParseCsv(string text)
+        {
+            var rows = new List<List<string>>();
+            var row = new List<string>();
+            var field = new System.Text.StringBuilder();
+            bool inQuotes = false;
+            for (int i = 0; i < text.Length; i++)
+            {
+                char c = text[i];
+                if (inQuotes)
+                {
+                    if (c == '"')
+                    {
+                        if (i + 1 < text.Length && text[i + 1] == '"') { field.Append('"'); i++; }
+                        else inQuotes = false;
+                    }
+                    else field.Append(c);
+                }
+                else if (c == '"') inQuotes = true;
+                else if (c == ',') { row.Add(field.ToString()); field.Clear(); }
+                else if (c == '\n' || c == '\r')
+                {
+                    if (c == '\r' && i + 1 < text.Length && text[i + 1] == '\n') i++;
+                    row.Add(field.ToString());
+                    field.Clear();
+                    if (row.Count > 1 || row[0].Length > 0) rows.Add(row);
+                    row = new List<string>();
+                }
+                else field.Append(c);
+            }
+            if (field.Length > 0 || row.Count > 0) { row.Add(field.ToString()); rows.Add(row); }
+            return rows;
+        }
+
+        [Test]
+        public void Csv_IsWellFormed_NoEmptyCells_NoDuplicateKeys()
+        {
+            var rows = LoadCsv();
+            CollectionAssert.AreEqual(new[] { "Key", "fr", "en" }, rows[0]);
+
+            var keys = new HashSet<string>();
+            foreach (var row in rows.Skip(1))
+            {
+                Assert.AreEqual(3, row.Count, $"Ligne mal formée : {string.Join(" | ", row)}");
+                Assert.IsTrue(keys.Add(row[0]), $"Clé en double : {row[0]}");
+                Assert.IsNotEmpty(row[1].Trim(), $"Traduction fr vide : {row[0]}");
+                Assert.IsNotEmpty(row[2].Trim(), $"Traduction en vide : {row[0]}");
+            }
+        }
+
+        [Test]
+        public void Csv_ContainsEveryKeyTheEngineCanEmit()
+        {
+            var keys = LoadCsv().Skip(1).Select(r => r[0]).ToHashSet();
+
+            foreach (var key in ValidationKeys) Assert.Contains(key, keys.ToList(), key);
+            foreach (var p in PowerCatalog.All)
+            {
+                Assert.Contains(PowerCatalog.LabelKey(p), keys.ToList());
+                Assert.Contains(PowerCatalog.DescriptionKey(p), keys.ToList());
+            }
+            for (int rank = 11; rank <= 14; rank++)
+                Assert.Contains(new Card(rank, Suit.Spades).RankKey, keys.ToList());
+            foreach (GameMode m in Enum.GetValues(typeof(GameMode))) Assert.Contains($"mode.{m}.label", keys.ToList());
+            foreach (AiDifficulty d in Enum.GetValues(typeof(AiDifficulty)))
+                Assert.Contains($"difficulty.{d}.label", keys.ToList());
+        }
+
+        [Test]
+        public void Csv_FrenchAndEnglish_UseTheSamePlaceholders()
+        {
+            var placeholder = new Regex(@"\{\d+\}");
+            foreach (var row in LoadCsv().Skip(1))
+            {
+                var fr = placeholder.Matches(row[1]).Select(m => m.Value).OrderBy(x => x).ToList();
+                var en = placeholder.Matches(row[2]).Select(m => m.Value).OrderBy(x => x).ToList();
+                CollectionAssert.AreEqual(fr, en, $"Paramètres différents pour {row[0]}");
+            }
+        }
+    }
+}

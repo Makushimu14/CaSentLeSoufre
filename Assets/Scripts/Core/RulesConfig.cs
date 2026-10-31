@@ -101,30 +101,31 @@ namespace CaSentLeSoufre.Core
             return false;
         }
 
-        /// <summary>Problèmes détectés (en français) ; liste vide si les règles sont valides.</summary>
-        public List<string> Validate()
+        /// <summary>Problèmes détectés, sous forme de clés de traduction ; liste vide si les règles sont valides.</summary>
+        public List<LocalizedMessage> Validate()
         {
-            var errors = new List<string>();
+            var errors = new List<LocalizedMessage>();
             if (Powers == null)
             {
-                errors.Add("La liste des pouvoirs est manquante.");
+                errors.Add(new LocalizedMessage("validation.powers_missing"));
                 return errors;
             }
 
             if (Powers.Count > MaxPowers)
-                errors.Add($"Au plus {MaxPowers} pouvoirs peuvent être actifs (vous en avez {Powers.Count}).");
+                errors.Add(new LocalizedMessage("validation.powers_too_many", MaxPowers, Powers.Count));
 
             var powers = new HashSet<PowerType>();
             var ranks = new HashSet<int>();
             foreach (var slot in Powers)
             {
                 if (slot.Rank < 2 || slot.Rank > Card.Ace)
-                    errors.Add($"La valeur {slot.Rank} n'est pas une valeur de carte valide.");
+                    errors.Add(new LocalizedMessage("validation.rank_invalid", slot.Rank));
                 else if (!ranks.Add(slot.Rank))
-                    errors.Add($"La valeur {slot.Rank} porte déjà un pouvoir.");
+                    errors.Add(new LocalizedMessage("validation.rank_duplicate", slot.Rank));
 
                 if (!powers.Add(slot.Power))
-                    errors.Add($"Le pouvoir « {PowerCatalog.Label(slot.Power)} » est choisi plusieurs fois.");
+                    errors.Add(new LocalizedMessage("validation.power_duplicate",
+                        new KeyRef(PowerCatalog.LabelKey(slot.Power))));
             }
             return errors;
         }

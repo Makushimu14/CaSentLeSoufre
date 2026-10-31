@@ -47,20 +47,20 @@ namespace CaSentLeSoufre.Core
             return s;
         }
 
-        /// <summary>Liste des problèmes (en français, affichables) ; vide si les réglages sont valides.</summary>
-        public List<string> Validate()
+        /// <summary>Problèmes détectés, sous forme de clés de traduction ; liste vide si les réglages sont valides.</summary>
+        public List<LocalizedMessage> Validate()
         {
-            var errors = new List<string>();
+            var errors = new List<LocalizedMessage>();
 
-            if (Rules == null) errors.Add("Les règles sont manquantes.");
+            if (Rules == null) errors.Add(new LocalizedMessage("validation.rules_missing"));
             else errors.AddRange(Rules.Validate());
 
-            if (Rules != null && PlayerCount < RulesConfig.MinPlayers || PlayerCount > MaxPlayers)
-                errors.Add($"Il faut entre {RulesConfig.MinPlayers} et {MaxPlayers} joueurs dans ce mode " +
-                           $"(vous en avez {PlayerCount}).");
+            if (Rules != null && (PlayerCount < RulesConfig.MinPlayers || PlayerCount > MaxPlayers))
+                errors.Add(new LocalizedMessage("validation.players_count",
+                    RulesConfig.MinPlayers, MaxPlayers, PlayerCount));
 
             if (RoundCount < MinRounds || RoundCount > MaxRounds)
-                errors.Add($"Le nombre de manches doit être compris entre {MinRounds} et {MaxRounds}.");
+                errors.Add(new LocalizedMessage("validation.rounds_range", MinRounds, MaxRounds));
 
             var names = new List<string> { HumanName };
             foreach (var o in Opponents) names.Add(o?.Name);
@@ -69,10 +69,12 @@ namespace CaSentLeSoufre.Core
             foreach (var raw in names)
             {
                 string name = raw?.Trim();
-                if (string.IsNullOrEmpty(name)) errors.Add("Chaque joueur doit avoir un nom.");
+                if (string.IsNullOrEmpty(name))
+                    errors.Add(new LocalizedMessage("validation.name_required"));
                 else if (name.Length > MaxNameLength)
-                    errors.Add($"Le nom « {name} » dépasse {MaxNameLength} caractères.");
-                else if (!seen.Add(name)) errors.Add($"Le nom « {name} » est utilisé plusieurs fois.");
+                    errors.Add(new LocalizedMessage("validation.name_too_long", name, MaxNameLength));
+                else if (!seen.Add(name))
+                    errors.Add(new LocalizedMessage("validation.name_duplicate", name));
             }
 
             return errors;

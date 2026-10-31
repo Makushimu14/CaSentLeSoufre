@@ -1,0 +1,176 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5b11a58205ec3474ca216360e9fa74a8, type: 3}
+  m_Name: Game Shared Data
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.SharedTableData
+  m_TableCollectionName: Game
+  m_TableCollectionNameGuidString: efacaa820cfb14f4fbc97e057169c67e
+  m_Entries:
+  - m_Id: 1051361280
+    m_Key: validation.rules_missing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1135247360
+    m_Key: validation.powers_missing
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1139441664
+    m_Key: validation.powers_too_many
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1139441665
+    m_Key: validation.rank_invalid
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635968
+    m_Key: validation.rank_duplicate
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635969
+    m_Key: validation.power_duplicate
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635970
+    m_Key: validation.players_count
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635971
+    m_Key: validation.rounds_range
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635972
+    m_Key: validation.name_required
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635973
+    m_Key: validation.name_too_long
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635974
+    m_Key: validation.name_duplicate
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635975
+    m_Key: power.Reset.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635976
+    m_Key: power.Reset.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635977
+    m_Key: power.Burn.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635978
+    m_Key: power.Burn.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635979
+    m_Key: power.Transparent.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635980
+    m_Key: power.Transparent.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635981
+    m_Key: power.LowerOrEqual.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635982
+    m_Key: power.LowerOrEqual.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635983
+    m_Key: power.Skip.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635984
+    m_Key: power.Skip.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635985
+    m_Key: power.Reverse.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635986
+    m_Key: power.Reverse.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635987
+    m_Key: power.ForcePickUp.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635988
+    m_Key: power.ForcePickUp.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635989
+    m_Key: power.PlayAgain.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635990
+    m_Key: power.PlayAgain.description
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635991
+    m_Key: card.rank.11
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635992
+    m_Key: card.rank.12
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635993
+    m_Key: card.rank.13
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635994
+    m_Key: card.rank.14
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635995
+    m_Key: mode.Classic.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635996
+    m_Key: mode.Demon.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635997
+    m_Key: difficulty.Easy.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635998
+    m_Key: difficulty.Normal.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635999
+    m_Key: difficulty.Hard.label
+    m_Metadata:
+      m_Items: []
+  - m_Id: 728192679936
+    m_Key: game.title
+    m_Metadata:
+      m_Items: []
+  m_Metadata:
+    m_Items: []
+  m_KeyGenerator:
+    rid: 2619272708943773917
+  references:
+    version: 2
+    RefIds:
+    - rid: 2619272708943773917
+      type: {class: DistributedUIDGenerator, ns: UnityEngine.Localization.Tables, asm: Unity.Localization}
+      data:
+        m_CustomEpoch: 1793458901022

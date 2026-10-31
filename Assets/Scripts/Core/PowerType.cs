@@ -72,34 +72,10 @@ namespace CaSentLeSoufre.Core
         public static bool IsAlwaysPlayable(PowerType power) =>
             power == PowerType.Reset || power == PowerType.Burn || power == PowerType.Transparent;
 
-        public static string Label(PowerType power)
-        {
-            switch (power)
-            {
-                case PowerType.Reset: return "Remise à zéro";
-                case PowerType.Burn: return "Brûlure";
-                case PowerType.Transparent: return "Transparent";
-                case PowerType.LowerOrEqual: return "Plus bas";
-                case PowerType.Skip: return "Saute un tour";
-                case PowerType.Reverse: return "Inverse le sens";
-                case PowerType.ForcePickUp: return "Ramassage forcé";
-                default: return "Rejouer";
-            }
-        }
+        /// <summary>Clé de traduction du nom du pouvoir, par exemple « power.Reset.label ».</summary>
+        public static string LabelKey(PowerType power) => "power." + power + ".label";
 
-        public static string Description(PowerType power)
-        {
-            switch (power)
-            {
-                case PowerType.Reset: return "Jouable sur tout. Le suivant peut jouer n'importe quelle carte.";
-                case PowerType.Burn: return "Jouable sur tout. Brûle la défausse et vous rejouez.";
-                case PowerType.Transparent: return "Jouable sur tout. Le suivant doit battre la carte située dessous.";
-                case PowerType.LowerOrEqual: return "Le suivant doit jouer une carte de valeur inférieure ou égale.";
-                case PowerType.Skip: return "Le suivant passe son tour (un joueur de plus par carte jouée).";
-                case PowerType.Reverse: return "Le sens du jeu s'inverse.";
-                case PowerType.ForcePickUp: return "Le suivant ramasse la défausse et passe son tour.";
-                default: return "Vous rejouez immédiatement.";
-            }
-        }
+        /// <summary>Clé de traduction de la description du pouvoir, par exemple « power.Reset.description ».</summary>
+        public static string DescriptionKey(PowerType power) => "power." + power + ".description";
     }
 }

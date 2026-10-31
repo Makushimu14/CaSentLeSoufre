@@ -561,6 +561,41 @@ namespace CaSentLeSoufre.Tests
         }
 
         [Test]
+        public void ValidationMessages_AreKeysWithArguments_NotText()
+        {
+            var settings = MatchSettings.CreateDefault(GameMode.Classic, 2, 0);
+            var keys = settings.Validate().Select(m => m.Key).ToList();
+            CollectionAssert.Contains(keys, "validation.players_count");
+            CollectionAssert.Contains(keys, "validation.rounds_range");
+
+            var players = settings.Validate().First(m => m.Key == "validation.players_count");
+            CollectionAssert.AreEqual(new object[] { 3, 5, 2 }, players.Args);
+
+            var dup = RulesConfig.WithPowers(new PowerSlot(PowerType.Skip, 8), new PowerSlot(PowerType.Skip, 9));
+            var dupMsg = dup.Validate().Single();
+            Assert.AreEqual("validation.power_duplicate", dupMsg.Key);
+            Assert.AreEqual("power.Skip.label", ((KeyRef)dupMsg.Args[0]).Key);
+
+            var noRules = MatchSettings.CreateDefault(GameMode.Classic, 3);
+            noRules.Rules = null;
+            Assert.DoesNotThrow(() => noRules.Validate(), "Règles nulles : pas d'exception");
+            Assert.AreEqual("validation.rules_missing", noRules.Validate()[0].Key);
+        }
+
+        [Test]
+        public void PowerAndCardKeys_FollowNamingScheme()
+        {
+            foreach (var p in PowerCatalog.All)
+            {
+                Assert.AreEqual($"power.{p}.label", PowerCatalog.LabelKey(p));
+                Assert.AreEqual($"power.{p}.description", PowerCatalog.DescriptionKey(p));
+            }
+            Assert.IsNull(C(10).RankKey);
+            Assert.AreEqual("card.rank.11", C(11).RankKey);
+            Assert.AreEqual("card.rank.14", C(14).RankKey);
+        }
+
+        [Test]
         public void EveryPower_HasDefaultRank_AndDistinctRanks()
         {
             var ranks = PowerCatalog.All.Select(PowerCatalog.DefaultRank).ToList();

@@ -1,0 +1,171 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: Game_en
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: efacaa820cfb14f4fbc97e057169c67e, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 1051361280
+    m_Localized: The rules are missing.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1135247360
+    m_Localized: The list of powers is missing.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1139441664
+    m_Localized: At most {0} powers can be active (you have {1}).
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1139441665
+    m_Localized: '{0} is not a valid card value.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635968
+    m_Localized: The value {0} already has a power.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635969
+    m_Localized: The power "{0}" is selected more than once.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635970
+    m_Localized: This mode needs between {0} and {1} players (you have {2}).
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635971
+    m_Localized: The number of rounds must be between {0} and {1}.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635972
+    m_Localized: Every player needs a name.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635973
+    m_Localized: The name "{0}" is longer than {1} characters.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635974
+    m_Localized: The name "{0}" is used more than once.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635975
+    m_Localized: Reset
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635976
+    m_Localized: Playable on anything. The next player can play any card.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635977
+    m_Localized: Burn
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635978
+    m_Localized: Playable on anything. Burns the discard pile and you play again.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635979
+    m_Localized: See-through
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635980
+    m_Localized: Playable on anything. The next player must beat the card underneath.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635981
+    m_Localized: Lower
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635982
+    m_Localized: The next player must play a card of equal or lower value.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635983
+    m_Localized: Skip
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635984
+    m_Localized: The next player misses their turn (one more player per card played).
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635985
+    m_Localized: Reverse
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635986
+    m_Localized: The direction of play is reversed.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635987
+    m_Localized: Forced pick-up
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635988
+    m_Localized: The next player picks up the discard pile and misses their turn.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635989
+    m_Localized: Play again
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635990
+    m_Localized: You play again immediately.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635991
+    m_Localized: J
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635992
+    m_Localized: Q
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635993
+    m_Localized: K
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635994
+    m_Localized: A
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635995
+    m_Localized: Official rules
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635996
+    m_Localized: Demon mode
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635997
+    m_Localized: Easy
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635998
+    m_Localized: Normal
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1143635999
+    m_Localized: Hard
+    m_Metadata:
+      m_Items: []
+  - m_Id: 728192679936
+    m_Localized: "\xC7a Sent le Soufre"
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

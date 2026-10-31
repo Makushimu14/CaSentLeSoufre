@@ -35,20 +35,27 @@ namespace CaSentLeSoufre.Core
         public static bool operator ==(Card a, Card b) => a.Equals(b);
         public static bool operator !=(Card a, Card b) => !a.Equals(b);
 
+        /// <summary>Libellé technique invariant (J, Q, K, A). Pour l'affichage, utiliser <see cref="RankKey"/>.</summary>
         public string RankLabel
         {
             get
             {
                 switch (Rank)
                 {
-                    case Jack: return "V";
-                    case Queen: return "D";
-                    case King: return "R";
+                    case Jack: return "J";
+                    case Queen: return "Q";
+                    case King: return "K";
                     case Ace: return "A";
                     default: return Rank.ToString();
                 }
             }
         }
+
+        /// <summary>
+        /// Clé de traduction de la valeur pour les figures et l'As (« card.rank.11 » à « card.rank.14 »),
+        /// null pour les valeurs numériques 2 à 10 qui s'affichent telles quelles.
+        /// </summary>
+        public string RankKey => Rank >= Jack ? "card.rank." + Rank : null;
 
         public string SuitSymbol
         {

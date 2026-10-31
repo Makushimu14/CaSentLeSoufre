@@ -1,4 +1,6 @@
 ﻿<Solution>
   <Project Path="CaSentLeSoufre.Core.csproj" />
   <Project Path="CaSentLeSoufre.Tests.EditMode.csproj" />
+  <Project Path="CaSentLeSoufre.Game.csproj" />
+  <Project Path="CaSentLeSoufre.Editor.csproj" />
 </Solution>

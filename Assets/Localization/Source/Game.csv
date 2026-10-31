@@ -1,0 +1,38 @@
+Key,fr,en
+validation.rules_missing,Les règles sont manquantes.,The rules are missing.
+validation.powers_missing,La liste des pouvoirs est manquante.,The list of powers is missing.
+validation.powers_too_many,Au plus {0} pouvoirs peuvent être actifs (vous en avez {1}).,At most {0} powers can be active (you have {1}).
+validation.rank_invalid,La valeur {0} n'est pas une valeur de carte valide.,{0} is not a valid card value.
+validation.rank_duplicate,La valeur {0} porte déjà un pouvoir.,The value {0} already has a power.
+validation.power_duplicate,Le pouvoir « {0} » est choisi plusieurs fois.,"The power ""{0}"" is selected more than once."
+validation.players_count,Il faut entre {0} et {1} joueurs dans ce mode (vous en avez {2}).,This mode needs between {0} and {1} players (you have {2}).
+validation.rounds_range,Le nombre de manches doit être compris entre {0} et {1}.,The number of rounds must be between {0} and {1}.
+validation.name_required,Chaque joueur doit avoir un nom.,Every player needs a name.
+validation.name_too_long,"Le nom « {0} » dépasse {1} caractères.","The name ""{0}"" is longer than {1} characters."
+validation.name_duplicate,Le nom « {0} » est utilisé plusieurs fois.,"The name ""{0}"" is used more than once."
+power.Reset.label,Remise à zéro,Reset
+power.Reset.description,Jouable sur tout. Le suivant peut jouer n'importe quelle carte.,Playable on anything. The next player can play any card.
+power.Burn.label,Brûlure,Burn
+power.Burn.description,Jouable sur tout. Brûle la défausse et vous rejouez.,Playable on anything. Burns the discard pile and you play again.
+power.Transparent.label,Transparent,See-through
+power.Transparent.description,Jouable sur tout. Le suivant doit battre la carte située dessous.,Playable on anything. The next player must beat the card underneath.
+power.LowerOrEqual.label,Plus bas,Lower
+power.LowerOrEqual.description,Le suivant doit jouer une carte de valeur inférieure ou égale.,The next player must play a card of equal or lower value.
+power.Skip.label,Saute un tour,Skip
+power.Skip.description,Le suivant passe son tour (un joueur de plus par carte jouée).,The next player misses their turn (one more player per card played).
+power.Reverse.label,Inverse le sens,Reverse
+power.Reverse.description,Le sens du jeu s'inverse.,The direction of play is reversed.
+power.ForcePickUp.label,Ramassage forcé,Forced pick-up
+power.ForcePickUp.description,Le suivant ramasse la défausse et passe son tour.,The next player picks up the discard pile and misses their turn.
+power.PlayAgain.label,Rejouer,Play again
+power.PlayAgain.description,Vous rejouez immédiatement.,You play again immediately.
+card.rank.11,V,J
+card.rank.12,D,Q
+card.rank.13,R,K
+card.rank.14,A,A
+mode.Classic.label,Règles officielles,Official rules
+mode.Demon.label,Mode démon,Demon mode
+difficulty.Easy.label,Facile,Easy
+difficulty.Normal.label,Normale,Normal
+difficulty.Hard.label,Difficile,Hard
+game.title,Ça Sent le Soufre,Ça Sent le Soufre
