@@ -69,6 +69,26 @@ namespace CaSentLeSoufre.Core
         }
     }
 
+    /// <summary>Domaine d'un classement de statistiques : les manches, ou les parties (plusieurs manches).</summary>
+    public enum StatsScope
+    {
+        Rounds,
+        Matches
+    }
+
+    /// <summary>Une ligne de l'écran des statistiques : un joueur et ses compteurs pour le filtre choisi.</summary>
+    public readonly struct StatsRow
+    {
+        public PlayerStats Player { get; }
+        public StatLine Line { get; }
+
+        public StatsRow(PlayerStats player, StatLine line)
+        {
+            Player = player;
+            Line = line;
+        }
+    }
+
     /// <summary>Forme enregistrable du carnet de statistiques (sérialisable en JSON par la couche Unity).</summary>
     [Serializable]
     public sealed class StatsSnapshot
@@ -147,6 +167,38 @@ namespace CaSentLeSoufre.Core
         {
             _players.Clear();
             _byKey.Clear();
+        }
+
+        /// <summary>
+        /// Lignes d'un classement de l'écran des statistiques. <paramref name="mode"/> null = tous les modes
+        /// confondus. Les manches et les parties sont deux classements séparés (<paramref name="scope"/>) : chacun
+        /// n'inclut que les joueurs qui ont joué dans ce domaine, trié sur son propre taux de victoire, puis sur
+        /// le plus de matière jouée, puis sur le nom.
+        /// </summary>
+        public List<StatsRow> GetRows(GameMode? mode = null, StatsScope scope = StatsScope.Rounds)
+        {
+            bool rounds = scope == StatsScope.Rounds;
+            var rows = new List<StatsRow>();
+            foreach (var player in _players)
+            {
+                var line = mode.HasValue ? player.Line(mode.Value).Copy() : player.Overall();
+                if ((rounds ? line.RoundsPlayed : line.MatchesPlayed) == 0) continue;
+                rows.Add(new StatsRow(player, line));
+            }
+
+            rows.Sort((a, b) =>
+            {
+                int byRate = rounds
+                    ? b.Line.RoundWinRate.CompareTo(a.Line.RoundWinRate)
+                    : b.Line.MatchWinRate.CompareTo(a.Line.MatchWinRate);
+                if (byRate != 0) return byRate;
+                int byPlayed = rounds
+                    ? b.Line.RoundsPlayed.CompareTo(a.Line.RoundsPlayed)
+                    : b.Line.MatchesPlayed.CompareTo(a.Line.MatchesPlayed);
+                if (byPlayed != 0) return byPlayed;
+                return string.Compare(a.Player.Name, b.Player.Name, StringComparison.OrdinalIgnoreCase);
+            });
+            return rows;
         }
 
         // ---------------------------------------------------------------- Sauvegarde

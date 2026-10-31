@@ -115,3 +115,17 @@ table.winner,Vainqueur : {0},Winner: {0}
 table.next_round,Manche suivante,Next round
 table.back_to_menu,Retour au menu,Back to menu
 table.hand_count,Main : {0},Hand: {0}
+menu.stats,Statistiques,Statistics
+stats.filter.all,Tous les modes,All modes
+stats.group.rounds,Manches,Rounds
+stats.group.matches,Parties,Games
+stats.col.player,Joueur,Player
+stats.col.played,Jouées,Played
+stats.col.wins,Victoires,Wins
+stats.col.losses,Défaites,Losses
+stats.human,Humain,Human
+stats.ai,IA ({0}),AI ({0})
+stats.empty,"Aucune statistique pour l'instant : terminez une manche pour les voir apparaître.","No statistics yet: finish a round to see them here."
+stats.hint,Les pourcentages sont calculés sur les manches et les parties terminées.,Percentages are based on finished rounds and games.
+stats.empty_rounds,Aucune manche terminée pour l'instant.,No finished round yet.
+stats.empty_matches,Aucune partie terminée pour l'instant.,No finished game yet.

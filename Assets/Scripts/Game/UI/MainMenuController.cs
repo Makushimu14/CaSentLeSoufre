@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using CaSentLeSoufre.Core;
 using UnityEngine;
@@ -20,13 +21,18 @@ namespace CaSentLeSoufre.App.UI
         private enum Page
         {
             Main,
-            Settings
+            Settings,
+            Stats
         }
 
         private const float ColumnWidth = 1100f;
 
         private MatchSetupModel _model;
         private Page _page = Page.Main;
+
+        // Page des statistiques : relue depuis le disque à chaque ouverture, filtre : 0 = tous, 1 = classique, 2 = démon.
+        private StatsBook _statsBook = new StatsBook();
+        private int _statsFilter;
 
         private GameObject _canvasObject;
         private ScrollRect _scroll;
@@ -137,6 +143,7 @@ namespace CaSentLeSoufre.App.UI
         private void ShowPage(Page page)
         {
             _page = page;
+            if (page == Page.Stats) _statsBook = StatsStorage.Load();
             _scroll.verticalNormalizedPosition = 1f;
             Rebuild();
         }
@@ -155,8 +162,18 @@ namespace CaSentLeSoufre.App.UI
             _errorsHost = null;
             _startButton = null;
 
-            if (_page == Page.Main) BuildMainPage();
-            else BuildSettingsPage();
+            switch (_page)
+            {
+                case Page.Settings:
+                    BuildSettingsPage();
+                    break;
+                case Page.Stats:
+                    BuildStatsPage();
+                    break;
+                default:
+                    BuildMainPage();
+                    break;
+            }
 
             RefreshStatus();
             SavePreferences();
@@ -196,9 +213,10 @@ namespace CaSentLeSoufre.App.UI
         private void BuildMainPage()
         {
             var header = UiFactory.Row(_column, 16);
-            UiFactory.Label(header, Loc.Get("game.title"), 72, Theme.Accent, FontStyle.Bold);
+            UiFactory.Label(header, Loc.Get("game.title"), 60, Theme.Accent, FontStyle.Bold);
             UiFactory.FlexibleSpace(header);
-            UiFactory.MakeButton(header, Loc.Get("menu.settings"), () => ShowPage(Page.Settings), 26, 260, 60);
+            UiFactory.MakeButton(header, Loc.Get("menu.stats"), () => ShowPage(Page.Stats), 24, 220, 60);
+            UiFactory.MakeButton(header, Loc.Get("menu.settings"), () => ShowPage(Page.Settings), 24, 220, 60);
 
             var card = UiFactory.Card(_column);
             UiFactory.Label(card, Loc.Get("menu.quick.title"), 36, Theme.Text, FontStyle.Bold);
@@ -284,6 +302,111 @@ namespace CaSentLeSoufre.App.UI
             _canvasObject.SetActive(true);
             _page = Page.Main;
             Rebuild();
+        }
+
+        // ---------------------------------------------------------------- Page Statistiques
+
+        private const float NameColumn = 330f;
+        private const float NumberColumn = 210f;
+        private const float ColumnGap = 6f;
+
+        private void BuildStatsPage()
+        {
+            var header = UiFactory.Row(_column, 16);
+            UiFactory.MakeButton(header, Loc.Get("menu.back"), () => ShowPage(Page.Main), 26, 220, 60);
+            UiFactory.Label(header, Loc.Get("menu.stats"), 56, Theme.Accent, FontStyle.Bold);
+            UiFactory.FlexibleSpace(header);
+
+            // Tous les modes, ou l'un des deux.
+            var modes = new GameMode?[] { null, GameMode.Classic, GameMode.Demon };
+            var labels = new[]
+            {
+                Loc.Get("stats.filter.all"), Loc.Get("mode.Classic.label"), Loc.Get("mode.Demon.label")
+            };
+            UiFactory.Segmented(_column, labels, _statsFilter, index =>
+            {
+                _statsFilter = index;
+                Rebuild();
+            }, 26, 60);
+
+            var mode = modes[_statsFilter];
+            var rounds = _statsBook.GetRows(mode, StatsScope.Rounds);
+            var matches = _statsBook.GetRows(mode, StatsScope.Matches);
+
+            if (rounds.Count == 0)
+            {
+                var empty = UiFactory.Card(_column);
+                UiFactory.Label(empty, Loc.Get("stats.empty"), 26, Theme.Muted, FontStyle.Italic, TextAnchor.MiddleCenter);
+            }
+            else
+            {
+                // Deux classements séparés : chacun trié sur ses propres résultats.
+                BuildStatsTable("stats.group.rounds", rounds, StatsScope.Rounds, "stats.empty_rounds");
+                BuildStatsTable("stats.group.matches", matches, StatsScope.Matches, "stats.empty_matches");
+            }
+
+            UiFactory.Label(_column, Loc.Get("stats.hint"), 22, Theme.Muted, FontStyle.Italic, TextAnchor.MiddleCenter);
+            UiFactory.MakeButton(_column, Loc.Get("menu.back"), () => ShowPage(Page.Main), 32, 0, 72, Theme.Accent);
+        }
+
+        private void BuildStatsTable(string titleKey, List<StatsRow> rows, StatsScope scope, string emptyKey)
+        {
+            var card = UiFactory.Card(_column);
+            UiFactory.Label(card, Loc.Get(titleKey), 36, Theme.Text, FontStyle.Bold);
+
+            if (rows.Count == 0)
+            {
+                UiFactory.Label(card, Loc.Get(emptyKey), 24, Theme.Muted, FontStyle.Italic);
+                return;
+            }
+
+            var columns = UiFactory.Row(card, ColumnGap);
+            Cell(columns, Loc.Get("stats.col.player"), NameColumn, 20, Theme.Muted, FontStyle.Normal, TextAnchor.MiddleLeft);
+            Cell(columns, Loc.Get("stats.col.played"), NumberColumn, 20, Theme.Muted, FontStyle.Normal, TextAnchor.MiddleCenter);
+            Cell(columns, Loc.Get("stats.col.wins"), NumberColumn, 20, Theme.Muted, FontStyle.Normal, TextAnchor.MiddleCenter);
+            Cell(columns, Loc.Get("stats.col.losses"), NumberColumn, 20, Theme.Muted, FontStyle.Normal, TextAnchor.MiddleCenter);
+
+            foreach (var row in rows) BuildStatsRow(card, row, scope);
+        }
+
+        private static void BuildStatsRow(Transform parent, StatsRow stats, StatsScope scope)
+        {
+            var player = stats.Player;
+            var line = stats.Line;
+            bool rounds = scope == StatsScope.Rounds;
+            int played = rounds ? line.RoundsPlayed : line.MatchesPlayed;
+            int wins = rounds ? line.RoundWins : line.MatchWins;
+            int losses = rounds ? line.RoundLosses : line.MatchLosses;
+
+            var panel = UiFactory.Card(parent, Theme.PanelLight, 10, 4);
+            var row = UiFactory.Row(panel, ColumnGap);
+
+            // Nom, et dessous le type de joueur (humain ou IA avec son niveau).
+            var identity = UiFactory.Column(row, 0);
+            UiFactory.Size(identity, minWidth: NameColumn, preferredWidth: NameColumn, flexibleWidth: 0);
+            Cell(identity, player.Name, NameColumn, 24, player.IsHuman ? Theme.Accent : Theme.Text, FontStyle.Bold,
+                TextAnchor.MiddleLeft);
+            string kind = player.IsHuman
+                ? Loc.Get("stats.human")
+                : Loc.Get("stats.ai", Loc.Get("difficulty." + player.Difficulty + ".label"));
+            Cell(identity, kind, NameColumn, 18, Theme.Muted, FontStyle.Normal, TextAnchor.MiddleLeft);
+
+            Cell(row, played.ToString(), NumberColumn, 26, Theme.Text, FontStyle.Normal, TextAnchor.MiddleCenter);
+            Cell(row, Percent(wins, played), NumberColumn, 26, Theme.Text, FontStyle.Bold, TextAnchor.MiddleCenter);
+            Cell(row, Percent(losses, played), NumberColumn, 26, Theme.Muted, FontStyle.Normal, TextAnchor.MiddleCenter);
+        }
+
+        /// <summary>Pourcentage entier suivi du nombre, par exemple « 75% (3) » ; un tiret tant que rien n'a été joué.</summary>
+        private static string Percent(int count, int total) =>
+            total == 0 ? "-" : $"{Mathf.RoundToInt(100f * count / total)}% ({count})";
+
+        /// <summary>Case de tableau à largeur fixe ; le texte ne passe jamais à la ligne.</summary>
+        private static void Cell(Transform parent, string text, float width, int size, Color color, FontStyle style,
+            TextAnchor anchor)
+        {
+            var label = UiFactory.Label(parent, text, size, color, style, anchor);
+            label.horizontalOverflow = HorizontalWrapMode.Overflow;
+            UiFactory.Size(label, minWidth: width, preferredWidth: width, flexibleWidth: 0);
         }
 
         // ---------------------------------------------------------------- Page Paramètres

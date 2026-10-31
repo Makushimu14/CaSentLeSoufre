@@ -510,6 +510,62 @@ MonoBehaviour:
     m_Localized: 'Hand: {0}'
     m_Metadata:
       m_Items: []
+  - m_Id: 37156146544640
+    m_Localized: Statistics
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37156201070592
+    m_Localized: All modes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37156201070593
+    m_Localized: Rounds
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37156201070594
+    m_Localized: Games
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37156201070595
+    m_Localized: Player
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37156201070596
+    m_Localized: Played
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37156201070597
+    m_Localized: Wins
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37156201070598
+    m_Localized: Losses
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37156201070599
+    m_Localized: Human
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37156201070600
+    m_Localized: AI ({0})
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37156201070601
+    m_Localized: 'No statistics yet: finish a round to see them here.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37156201070602
+    m_Localized: Percentages are based on finished rounds and games.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37951545966592
+    m_Localized: No finished round yet.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37951604686848
+    m_Localized: No finished game yet.
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

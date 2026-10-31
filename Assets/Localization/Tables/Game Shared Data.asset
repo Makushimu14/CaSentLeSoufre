@@ -507,6 +507,62 @@ MonoBehaviour:
     m_Key: table.hand_count
     m_Metadata:
       m_Items: []
+  - m_Id: 37156146544640
+    m_Key: menu.stats
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37156201070592
+    m_Key: stats.filter.all
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37156201070593
+    m_Key: stats.group.rounds
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37156201070594
+    m_Key: stats.group.matches
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37156201070595
+    m_Key: stats.col.player
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37156201070596
+    m_Key: stats.col.played
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37156201070597
+    m_Key: stats.col.wins
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37156201070598
+    m_Key: stats.col.losses
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37156201070599
+    m_Key: stats.human
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37156201070600
+    m_Key: stats.ai
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37156201070601
+    m_Key: stats.empty
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37156201070602
+    m_Key: stats.hint
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37951545966592
+    m_Key: stats.empty_rounds
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37951604686848
+    m_Key: stats.empty_matches
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

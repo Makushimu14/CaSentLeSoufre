@@ -510,6 +510,62 @@ MonoBehaviour:
     m_Localized: 'Main : {0}'
     m_Metadata:
       m_Items: []
+  - m_Id: 37156146544640
+    m_Localized: Statistiques
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37156201070592
+    m_Localized: Tous les modes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37156201070593
+    m_Localized: Manches
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37156201070594
+    m_Localized: Parties
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37156201070595
+    m_Localized: Joueur
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37156201070596
+    m_Localized: "Jou\xE9es"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37156201070597
+    m_Localized: Victoires
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37156201070598
+    m_Localized: "D\xE9faites"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37156201070599
+    m_Localized: Humain
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37156201070600
+    m_Localized: IA ({0})
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37156201070601
+    m_Localized: "Aucune statistique pour l'instant : terminez une manche pour les voir appara\xEEtre."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37156201070602
+    m_Localized: "Les pourcentages sont calcul\xE9s sur les manches et les parties termin\xE9es."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37951545966592
+    m_Localized: "Aucune manche termin\xE9e pour l'instant."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 37951604686848
+    m_Localized: "Aucune partie termin\xE9e pour l'instant."
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
