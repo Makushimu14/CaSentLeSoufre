@@ -227,11 +227,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 15599575662606
-    m_Localized: "Le carr\xE9 br\xFBle la d\xE9fausse"
+    m_Localized: "Le jeu complet br\xFBle la d\xE9fausse"
     m_Metadata:
       m_Items: []
   - m_Id: 15599575662607
-    m_Localized: "Quatre cartes de m\xEAme valeur de suite br\xFBlent la d\xE9fausse et le joueur rejoue."
+    m_Localized: "Toutes les cartes d'une m\xEAme valeur pos\xE9es \xE0 la suite (4 par paquet utilis\xE9) br\xFBlent la d\xE9fausse et le joueur rejoue."
     m_Metadata:
       m_Items: []
   - m_Id: 15599575662608
@@ -239,7 +239,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 15599575662609
-    m_Localized: "Jouez hors de votre tour une carte de m\xEAme valeur que celle du dessus de la d\xE9fausse."
+    m_Localized: "Hors de votre tour, posez la derni\xE8re carte d'un jeu complet de m\xEAme valeur (3 d\xE9j\xE0 pos\xE9es avec un paquet, 7 avec deux...)."
     m_Metadata:
       m_Items: []
   - m_Id: 15599575662610
@@ -344,6 +344,170 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 19488370753548
     m_Localized: "Vos param\xE8tres sont enregistr\xE9s automatiquement."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779111956480
+    m_Localized: Manche {0}/{1}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288128
+    m_Localized: Tour de {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288129
+    m_Localized: "\xC0 vous de jouer"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288130
+    m_Localized: "Sens invers\xE9"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288131
+    m_Localized: "Br\xFBl\xE9es : {0}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288132
+    m_Localized: Pioche
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288133
+    m_Localized: "D\xE9fausse"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288134
+    m_Localized: Votre main
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288135
+    m_Localized: Cartes visibles
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288136
+    m_Localized: "Cartes cach\xE9es"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288137
+    m_Localized: "Main : {0}  -  Cach\xE9es : {1}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288138
+    m_Localized: Sorti
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288139
+    m_Localized: "\xC9changez : cliquez une carte de votre main puis une carte visible, puis validez."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288140
+    m_Localized: "Aucune carte jouable : ramassez la d\xE9fausse."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288141
+    m_Localized: "Jouez une carte cach\xE9e."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288142
+    m_Localized: "Vous pouvez jouer \xE0 la vol\xE9e !"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288143
+    m_Localized: "Cliquez de nouveau sur la s\xE9lection pour la jouer."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288144
+    m_Localized: "Pr\xEAt"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288145
+    m_Localized: Jouer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288146
+    m_Localized: "Ramasser la d\xE9fausse"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288147
+    m_Localized: Abandonner
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288148
+    m_Localized: '{0} pose {1}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288149
+    m_Localized: "{0} joue \xE0 la vol\xE9e : {1}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288150
+    m_Localized: "{0} ramasse la d\xE9fausse ({1} cartes)"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288151
+    m_Localized: '{0} retourne {1}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288152
+    m_Localized: "{0} retourne {1} et ramasse la d\xE9fausse"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288153
+    m_Localized: "La d\xE9fausse est br\xFBl\xE9e !"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288154
+    m_Localized: 'Pouvoir : {0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288155
+    m_Localized: "{0} doit ramasser la d\xE9fausse"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288156
+    m_Localized: '{0} n''a plus de cartes !'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288157
+    m_Localized: "Manche arr\xEAt\xE9e : plus aucun progr\xE8s possible."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288158
+    m_Localized: Fin de la manche {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288159
+    m_Localized: Fin de la partie
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288160
+    m_Localized: "Ordre d'arriv\xE9e"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288161
+    m_Localized: dernier
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288162
+    m_Localized: Classement
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288163
+    m_Localized: '{0}. {1} - {2} pts'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288164
+    m_Localized: 'Vainqueur : {0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288165
+    m_Localized: Manche suivante
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288166
+    m_Localized: Retour au menu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30209976467456
+    m_Localized: 'Main : {0}'
     m_Metadata:
       m_Items: []
   references:

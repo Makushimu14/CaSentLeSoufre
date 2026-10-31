@@ -99,9 +99,10 @@ namespace CaSentLeSoufre.Core
         }
 
         private Game(IList<Player> players, RulesConfig rules, List<Card> drawPile, List<Card> discard,
-            int currentPlayer)
+            int currentPlayer, int deckCount)
         {
             Rules = rules ?? RulesConfig.Classic;
+            DeckCount = Math.Max(1, deckCount);
             _players = new List<Player>(players);
             _ready = new bool[_players.Count];
             _drawPile = drawPile ?? new List<Card>();
@@ -116,8 +117,8 @@ namespace CaSentLeSoufre.Core
         /// (tests, sauvegarde, scénarios). Le haut de la pioche est son dernier élément.
         /// </summary>
         public static Game FromSetup(IList<Player> players, RulesConfig rules, List<Card> drawPile,
-            List<Card> discard, int currentPlayer)
-            => new Game(players, rules, drawPile, discard, currentPlayer);
+            List<Card> discard, int currentPlayer, int deckCount = 1)
+            => new Game(players, rules, drawPile, discard, currentPlayer, deckCount);
 
         // ---------------------------------------------------------------- Échange
 
@@ -133,6 +134,11 @@ namespace CaSentLeSoufre.Core
             if (h < 0 || f < 0) return false;
             p.Hand[h] = faceUpCard;
             p.FaceUp[f] = handCard;
+
+            // La carte visible qui rejoint la main était connue de tous ; celle qui devient visible ne l'est plus
+            // « en main » (elle se voit désormais devant le joueur).
+            p.KnownInHand.Remove(handCard);
+            p.KnownInHand.Add(faceUpCard);
             return true;
         }
 
@@ -162,7 +168,7 @@ namespace CaSentLeSoufre.Core
             {
                 foreach (var c in _players[i].Hand)
                 {
-                    long key = (Rules.PowerOf(c.Rank) != null ? 1000 : 0) + c.Rank * 10 + (int)c.Suit;
+                    long key = (Rules.PowerOf(c.Rank) != null ? 1000 : 0) + Card.Strength(c.Rank) * 10 + (int)c.Suit;
                     if (key < bestKey)
                     {
                         bestKey = key;
@@ -189,19 +195,75 @@ namespace CaSentLeSoufre.Core
         /// <summary>Valeur à battre, ou null si tout est jouable.</summary>
         public int? RankToBeat() => EffectiveTop()?.Rank;
 
-        public bool CanPlayRank(int rank)
+        public bool CanPlayRank(int rank) => CanPlayRankOn(EffectiveTop()?.Rank, rank);
+
+        /// <summary>
+        /// Une carte de cette valeur pourrait-elle se poser sur une défausse dont la carte à battre serait
+        /// <paramref name="topRank"/> (null = défausse vide) ? Sert aussi aux IA pour prévoir le coup du suivant.
+        /// </summary>
+        public bool CanPlayRankOn(int? topRank, int rank)
         {
             var power = Rules.PowerOf(rank);
             if (power != null && PowerCatalog.IsAlwaysPlayable(power.Value)) return true;
 
-            var top = EffectiveTop();
-            if (top == null) return true;
+            if (topRank == null) return true;
 
-            var topPower = Rules.PowerOf(top.Value.Rank);
+            var topPower = Rules.PowerOf(topRank.Value);
             if (topPower == PowerType.Reset) return true;
-            if (topPower == PowerType.LowerOrEqual) return rank <= top.Value.Rank;
-            if (topPower == PowerType.SameOrFace) return rank == top.Value.Rank || Card.IsFace(rank);
-            return rank >= top.Value.Rank;
+            if (topPower == PowerType.LowerOrEqual) return Card.Strength(rank) <= Card.Strength(topRank.Value);
+            if (topPower == PowerType.SameOrFace) return rank == topRank.Value || Card.IsFace(rank);
+            return Card.Strength(rank) >= Card.Strength(topRank.Value);
+        }
+
+        /// <summary>Joueur qui aura la main après le joueur courant, dans le sens actuel du jeu.</summary>
+        public int PeekNextPlayerIndex()
+        {
+            int n = _players.Count;
+            for (int k = 1; k <= n; k++)
+            {
+                int next = (((CurrentPlayerIndex + Direction * k) % n) + n) % n;
+                if (_players[next].HasCards) return next;
+            }
+            return CurrentPlayerIndex;
+        }
+
+        /// <summary>Nombre de cartes d'une même valeur en jeu : 4 par paquet utilisé.</summary>
+        public int FullSetSize => 4 * DeckCount;
+
+        /// <summary>Nombre de cartes de même valeur qui se suivent au sommet de la défausse.</summary>
+        public int TopRunLength()
+        {
+            int n = _discardPile.Count;
+            if (n == 0) return 0;
+            int rank = _discardPile[n - 1].Rank;
+            int run = 0;
+            for (int i = n - 1; i >= 0 && _discardPile[i].Rank == rank; i--) run++;
+            return run;
+        }
+
+        /// <summary>
+        /// Cartes avec lesquelles ce joueur peut jouer à la volée en ce moment : la défausse se termine par
+        /// toutes les cartes de la même valeur sauf une (3 pour un paquet, 7 pour deux...) et le joueur
+        /// détient la dernière dans sa zone active (main, ou cartes visibles quand la main est vide).
+        /// Vide si ce n'est pas possible, y compris pour le joueur dont c'est le tour.
+        /// </summary>
+        public List<Card> GetJumpInCards(int playerIndex)
+        {
+            var result = new List<Card>();
+            if (!Rules.JumpIn || Phase != GamePhase.Play || playerIndex == CurrentPlayerIndex
+                || _discardPile.Count == 0)
+                return result;
+
+            var player = _players[playerIndex];
+            var zone = GetActiveZone(playerIndex);
+            if (!player.HasCards || zone == Zone.FaceDown) return result;
+
+            if (TopRunLength() != FullSetSize - 1) return result;
+
+            int rank = _discardPile[_discardPile.Count - 1].Rank;
+            foreach (var card in zone == Zone.Hand ? player.Hand : player.FaceUp)
+                if (card.Rank == rank) result.Add(card);
+            return result;
         }
 
         /// <summary>Zone dans laquelle le joueur doit jouer actuellement.</summary>
@@ -242,31 +304,44 @@ namespace CaSentLeSoufre.Core
             if (!CanPlayRank(rank)) return MoveResult.Fail(MoveError.NotPlayable);
 
             foreach (var c in cards) source.Remove(c);
+            if (zone == Zone.Hand) ForgetKnown(_players[playerIndex], cards);
             return Resolve(playerIndex, cards, rank, null);
         }
 
+        /// <summary>Les cartes posées ne sont plus dans la main : elles ne sont plus « connues » non plus.</summary>
+        private static void ForgetKnown(Player player, IReadOnlyList<Card> played)
+        {
+            foreach (var card in played) player.KnownInHand.Remove(card);
+        }
+
+        /// <summary>Le joueur ramasse ces cartes, toutes vues de tous sur la défausse : elles sont connues.</summary>
+        private static void TakeIntoHand(Player player, List<Card> cards)
+        {
+            player.Hand.AddRange(cards);
+            player.KnownInHand.AddRange(cards);
+        }
+
         /// <summary>
-        /// Jeu à la volée : un joueur dont ce n'est pas le tour joue une ou plusieurs cartes de même valeur
-        /// que celle du dessus de la défausse. Le tour reprend ensuite après lui.
+        /// Jeu à la volée : un joueur dont ce n'est pas le tour pose la dernière carte d'un jeu complet de même
+        /// valeur (voir <see cref="GetJumpInCards"/>). Le tour reprend ensuite après lui ; la défausse brûle
+        /// si l'option du carré est active, et le joueur rejoue.
         /// </summary>
         public MoveResult JumpIn(int playerIndex, IReadOnlyList<Card> cards)
         {
             if (Phase != GamePhase.Play) return MoveResult.Fail(MoveError.WrongPhase);
-            if (!Rules.JumpIn || playerIndex == CurrentPlayerIndex || _discardPile.Count == 0)
-                return MoveResult.Fail(MoveError.CannotJumpIn);
+
+            var allowed = GetJumpInCards(playerIndex);
+            if (allowed.Count == 0) return MoveResult.Fail(MoveError.CannotJumpIn);
+
+            if (cards == null || cards.Count != 1 || !allowed.Contains(cards[0]))
+                return MoveResult.Fail(MoveError.InvalidCards);
 
             var zone = GetActiveZone(playerIndex);
-            if (!_players[playerIndex].HasCards || zone == Zone.FaceDown)
-                return MoveResult.Fail(MoveError.CannotJumpIn);
-
-            if (!TryTakeFromZone(playerIndex, zone, cards, out var source, out int rank))
-                return MoveResult.Fail(MoveError.InvalidCards);
-            if (rank != _discardPile[_discardPile.Count - 1].Rank)
-                return MoveResult.Fail(MoveError.CannotJumpIn);
-
-            foreach (var c in cards) source.Remove(c);
+            var source = zone == Zone.Hand ? _players[playerIndex].Hand : _players[playerIndex].FaceUp;
+            source.Remove(cards[0]);
+            if (zone == Zone.Hand) ForgetKnown(_players[playerIndex], cards);
             CurrentPlayerIndex = playerIndex;
-            return Resolve(playerIndex, cards, rank, null);
+            return Resolve(playerIndex, cards, cards[0].Rank, null);
         }
 
         /// <summary>Joue à l'aveugle une carte face cachée (uniquement quand il ne reste plus que celles-là).</summary>
@@ -287,11 +362,12 @@ namespace CaSentLeSoufre.Core
 
             // Carte injouable : elle rejoint la défausse que le joueur ramasse en entier.
             _discardPile.Add(card);
-            p.Hand.AddRange(_discardPile);
+            int pickedUpCount = _discardPile.Count;
+            TakeIntoHand(p, _discardPile);
             _discardPile.Clear();
             AdvanceTurn();
             RegisterMove(playerIndex, false);
-            return new MoveResult(MoveError.None, pickedUp: true, revealed: card);
+            return new MoveResult(MoveError.None, pickedUp: true, revealed: card, pickedUpCount: pickedUpCount);
         }
 
         /// <summary>Ramasse la défausse. Autorisé uniquement s'il n'existe aucun coup légal.</summary>
@@ -302,11 +378,12 @@ namespace CaSentLeSoufre.Core
             if (GetActiveZone(playerIndex) == Zone.FaceDown) return MoveResult.Fail(MoveError.InvalidCards);
             if (HasLegalPlay(playerIndex)) return MoveResult.Fail(MoveError.MustPlay);
 
-            _players[playerIndex].Hand.AddRange(_discardPile);
+            int pickedUpCount = _discardPile.Count;
+            TakeIntoHand(_players[playerIndex], _discardPile);
             _discardPile.Clear();
             AdvanceTurn();
             RegisterMove(playerIndex, false);
-            return new MoveResult(MoveError.None, pickedUp: true);
+            return new MoveResult(MoveError.None, pickedUp: true, pickedUpCount: pickedUpCount);
         }
 
         // ---------------------------------------------------------------- Résolution
@@ -334,7 +411,7 @@ namespace CaSentLeSoufre.Core
                 p.Hand.Add(DrawTop());
 
             PowerType? power = Rules.PowerOf(rank);
-            bool burned = power == PowerType.Burn || (Rules.FourOfAKindBurns && TopFourMatch());
+            bool burned = power == PowerType.Burn || (Rules.FourOfAKindBurns && TopFullSet());
             if (burned)
             {
                 BurnedCount += _discardPile.Count;
@@ -350,6 +427,7 @@ namespace CaSentLeSoufre.Core
             }
 
             int? forcedPickUp = null;
+            int forcedPickUpCount = 0;
             if (Phase != GamePhase.Finished)
             {
                 if (burned)
@@ -370,7 +448,8 @@ namespace CaSentLeSoufre.Core
                 {
                     AdvanceTurn();
                     var victim = _players[CurrentPlayerIndex];
-                    victim.Hand.AddRange(_discardPile);
+                    forcedPickUpCount = _discardPile.Count;
+                    TakeIntoHand(victim, _discardPile);
                     _discardPile.Clear();
                     forcedPickUp = CurrentPlayerIndex;
                     AdvanceTurn();
@@ -388,7 +467,8 @@ namespace CaSentLeSoufre.Core
             RegisterMove(playerIndex, finished);
 
             return new MoveResult(MoveError.None, burned: burned, playerFinished: finished, revealed: revealed,
-                power: power, forcedPickUpPlayer: forcedPickUp);
+                power: power, forcedPickUpPlayer: forcedPickUp, played: new List<Card>(played),
+                pickedUpCount: forcedPickUpCount);
         }
 
         // ---------------------------------------------------------------- Sécurité anti-blocage
@@ -495,15 +575,8 @@ namespace CaSentLeSoufre.Core
             Phase = GamePhase.Finished;
         }
 
-        private bool TopFourMatch()
-        {
-            int n = _discardPile.Count;
-            if (n < 4) return false;
-            int rank = _discardPile[n - 1].Rank;
-            for (int i = n - 2; i >= n - 4; i--)
-                if (_discardPile[i].Rank != rank) return false;
-            return true;
-        }
+        /// <summary>Un jeu complet de même valeur (4 cartes par paquet) vient d'être posé à la suite.</summary>
+        private bool TopFullSet() => TopRunLength() >= FullSetSize;
 
         private void CheckGameOver()
         {

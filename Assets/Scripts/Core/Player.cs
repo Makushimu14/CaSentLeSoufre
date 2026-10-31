@@ -35,11 +35,23 @@ namespace CaSentLeSoufre.Core
             Difficulty = difficulty;
         }
 
+        /// <summary>
+        /// Cartes de la main que tous les joueurs connaissent : elles étaient visibles (cartes visibles échangées
+        /// en début de manche), ou elles ont été ramassées sur la défausse que tout le monde a vue. Les cartes
+        /// piochées ne sont pas connues. Sous-ensemble de <see cref="Hand"/> ; les IA difficiles s'en servent
+        /// pour contrer le joueur suivant sans tricher.
+        /// </summary>
+        public List<Card> KnownInHand { get; } = new List<Card>();
+
+        /// <summary>Le joueur ne cache plus rien dans sa main : toutes ses cartes sont connues.</summary>
+        public bool HandFullyKnown => KnownInHand.Count >= Hand.Count;
+
         public bool HasCards => Hand.Count > 0 || FaceUp.Count > 0 || FaceDown.Count > 0;
         public int TotalCards => Hand.Count + FaceUp.Count + FaceDown.Count;
 
         public void ClearCards()
         {
+            KnownInHand.Clear();
             Hand.Clear();
             FaceUp.Clear();
             FaceDown.Clear();

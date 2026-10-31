@@ -28,11 +28,11 @@ namespace CaSentLeSoufre.App.UI
         private MatchSetupModel _model;
         private Page _page = Page.Main;
 
+        private GameObject _canvasObject;
         private ScrollRect _scroll;
         private RectTransform _column;
         private RectTransform _errorsHost;
         private Button _startButton;
-        private Text _noticeLabel;
 
         private IEnumerator Start()
         {
@@ -80,6 +80,7 @@ namespace CaSentLeSoufre.App.UI
                 typeof(GraphicRaycaster));
             canvasObject.layer = LayerMask.NameToLayer("UI");
             canvasObject.transform.SetParent(transform, false);
+            _canvasObject = canvasObject;
 
             var canvas = canvasObject.GetComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
@@ -153,7 +154,6 @@ namespace CaSentLeSoufre.App.UI
 
             _errorsHost = null;
             _startButton = null;
-            _noticeLabel = null;
 
             if (_page == Page.Main) BuildMainPage();
             else BuildSettingsPage();
@@ -238,8 +238,6 @@ namespace CaSentLeSoufre.App.UI
             _errorsHost = UiFactory.Column(_column, 0);
 
             _startButton = UiFactory.MakeButton(_column, Loc.Get("menu.start"), OnStart, 36, 0, 84, Theme.Accent);
-            _noticeLabel = UiFactory.Label(_column, string.Empty, 24, Theme.Muted, FontStyle.Italic,
-                TextAnchor.MiddleCenter);
         }
 
         private void AddStepButton(Transform parent, string text, Action change, bool interactable = true)
@@ -267,9 +265,25 @@ namespace CaSentLeSoufre.App.UI
 
             SavePreferences();
             GameSession.SetPending(_model.BuildSettings());
-            _noticeLabel.text = Loc.Get("menu.start_pending");
-            Debug.Log($"[Menu] Partie prête : {GameSession.Pending.PlayerCount} joueurs, " +
-                      $"{GameSession.Pending.RoundCount} manche(s), mode {GameSession.Pending.Rules.Mode}.");
+
+            _canvasObject.SetActive(false);
+            try
+            {
+                TableController.Launch(transform, GameSession.Pending, OnTableClosed);
+            }
+            catch (Exception e)
+            {
+                Debug.LogException(e);
+                _canvasObject.SetActive(true);
+            }
+        }
+
+        private void OnTableClosed()
+        {
+            GameSession.Clear();
+            _canvasObject.SetActive(true);
+            _page = Page.Main;
+            Rebuild();
         }
 
         // ---------------------------------------------------------------- Page Paramètres

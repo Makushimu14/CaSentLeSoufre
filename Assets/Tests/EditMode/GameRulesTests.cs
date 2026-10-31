@@ -24,7 +24,8 @@ namespace CaSentLeSoufre.Tests
             PowerCatalog.All.Select((p, i) => new PowerSlot(p, 2 + i)).ToArray());
 
         /// <summary>3 joueurs en phase de jeu : A (main donnée) joue en premier ; B et C ont de quoi tenir.</summary>
-        private static Game Setup3(IEnumerable<Card> hand0, RulesConfig rules, IEnumerable<Card> discard = null)
+        private static Game Setup3(IEnumerable<Card> hand0, RulesConfig rules, IEnumerable<Card> discard = null,
+            int deckCount = 1)
         {
             var a = new Player("A");
             var b = new Player("B");
@@ -32,7 +33,7 @@ namespace CaSentLeSoufre.Tests
             a.Hand.AddRange(hand0);
             b.Hand.AddRange(new[] { C(9, Suit.Hearts), C(12, Suit.Hearts), C(13, Suit.Hearts) });
             c.Hand.AddRange(new[] { C(9, Suit.Diamonds), C(12, Suit.Diamonds), C(13, Suit.Diamonds) });
-            return Game.FromSetup(new[] { a, b, c }, rules, new List<Card>(), discard?.ToList(), 0);
+            return Game.FromSetup(new[] { a, b, c }, rules, new List<Card>(), discard?.ToList(), 0, deckCount);
         }
 
         /// <summary>Partie à 2 joueurs en phase de jeu, joueur 0 à la main.</summary>
@@ -354,11 +355,11 @@ namespace CaSentLeSoufre.Tests
         [Test]
         public void Stalemate_EndsRound_RanksByCardCount_AndMostCardsLoses()
         {
-            // Partie connue pour boucler (deux joueurs se repassent la défausse en fin de manche).
+            // Partie connue pour boucler (3 joueurs, graine 6) : les joueurs se repassent la défausse sans progresser.
             var rules = Rules(PowerType.Skip, PowerType.Reverse);
-            var game = new Game(MakePlayers(5, 1), rules, 1);
-            var rng = new Random(1);
-            for (int i = 0; i < 5; i++) AiBrain.DoSwap(game, i, rng);
+            var game = new Game(MakePlayers(3, 6), rules, 6);
+            var rng = new Random(6);
+            for (int i = 0; i < 3; i++) AiBrain.DoSwap(game, i, rng);
 
             int moves = 0;
             while (game.Phase == GamePhase.Play && moves++ < 20000) AiBrain.TakeTurn(game, rng);
@@ -366,8 +367,8 @@ namespace CaSentLeSoufre.Tests
             Assert.AreEqual(GamePhase.Finished, game.Phase);
             Assert.IsTrue(game.IsStalemate);
             Assert.Less(moves, 1000, "Une boucle exacte doit être coupée rapidement (détection de répétition)");
-            Assert.AreEqual(5, game.FinishOrder.Count);
-            Assert.AreEqual(game.FinishOrder[4], game.LoserIndex);
+            Assert.AreEqual(3, game.FinishOrder.Count);
+            Assert.AreEqual(game.FinishOrder[2], game.LoserIndex);
 
             int loserCards = game.Players[game.LoserIndex.Value].TotalCards;
             foreach (var p in game.Players)
@@ -536,9 +537,51 @@ namespace CaSentLeSoufre.Tests
             Assert.IsFalse(onSix.CanPlayRank(9));
             Assert.IsTrue(onSix.CanPlayRank(5), "5 = remise à zéro, toujours jouable");
 
-            // Le 2 et le 10 ne sont plus spéciaux ici.
-            Assert.IsFalse(Setup3(new[] { C(2) }, rules, new[] { C(9) }).CanPlayRank(2));
+            // Le 10 n'est plus spécial ici : il ne bat pas un roi. Le 2, lui, reste la carte la plus forte.
             Assert.IsFalse(Setup3(new[] { C(10) }, rules, new[] { C(12) }).CanPlayRank(10));
+            Assert.IsTrue(Setup3(new[] { C(2) }, rules, new[] { C(9) }).CanPlayRank(2));
+        }
+
+        [Test]
+        public void Two_IsTheStrongestCard_WhenItHasNoPower()
+        {
+            var noPowers = RulesConfig.WithPowers();
+
+            foreach (int below in new[] { 3, 4, 8, 10, Card.Jack, Card.King, Card.Ace })
+                Assert.IsTrue(Setup3(new[] { C(2) }, noPowers, new[] { C(below) }).CanPlayRank(2),
+                    $"Le 2 bat le {below}");
+
+            var onTwo = Setup3(new[] { C(3) }, noPowers, new[] { C(2) });
+            Assert.IsFalse(onTwo.CanPlayRank(3));
+            Assert.IsFalse(onTwo.CanPlayRank(Card.Ace), "Même l'as ne bat pas le 2");
+            Assert.IsTrue(onTwo.CanPlayRank(2), "Un autre 2 reste jouable (égalité)");
+
+            Assert.AreEqual(15, Card.Strength(2));
+            Assert.Greater(Card.Strength(2), Card.Strength(Card.Ace));
+            Assert.Less(Card.Strength(3), Card.Strength(4));
+        }
+
+        [Test]
+        public void Two_WithoutPower_IsTheLastCardToStartWith()
+        {
+            var game = new Game(new[] { new Player("A"), new Player("B"), new Player("C") },
+                RulesConfig.WithPowers(), 3);
+            game.Players[0].Hand.Clear(); game.Players[0].Hand.AddRange(new[] { C(2), C(2, Suit.Hearts), C(14) });
+            game.Players[1].Hand.Clear(); game.Players[1].Hand.AddRange(new[] { C(9), C(12), C(13) });
+            game.Players[2].Hand.Clear(); game.Players[2].Hand.AddRange(new[] { C(10), C(11), C(14, Suit.Hearts) });
+            game.SetReady(0);
+            game.SetReady(1);
+            game.SetReady(2);
+            Assert.AreEqual(1, game.CurrentPlayerIndex, "Le plus petit : le 9 du joueur B (le 2 est le plus fort)");
+        }
+
+        [Test]
+        public void LowerOrEqual_TreatsTheTwoAsTheHighestCard()
+        {
+            var rules = RulesConfig.WithPowers(new PowerSlot(PowerType.LowerOrEqual, 7));
+            var game = Setup3(new[] { C(3) }, rules, new[] { C(7) });
+            Assert.IsTrue(game.CanPlayRank(5));
+            Assert.IsFalse(game.CanPlayRank(2), "Le 2 est plus fort que 7 : refusé après un « plus bas »");
         }
 
         [Test]
@@ -658,45 +701,100 @@ namespace CaSentLeSoufre.Tests
 
         // ---------------------------------------------------------------- Jeu à la volée
 
-        [Test]
-        public void JumpIn_PlaysOutOfTurn_AndTurnResumesAfterJumper()
-        {
-            var rules = new RulesConfig { JumpIn = true };
-            var game = Setup3(new[] { C(13) }, rules, new[] { C(7) });
-            game.Players[2].Hand.Add(C(7, Suit.Hearts));
+        private static Card[] Sevens(int count) =>
+            new[] { C(7, Suit.Clubs), C(7, Suit.Diamonds), C(7, Suit.Hearts), C(7, Suit.Spades) }
+                .Concat(new[] { C(7, Suit.Clubs), C(7, Suit.Diamonds), C(7, Suit.Hearts), C(7, Suit.Spades) })
+                .Take(count).ToArray();
 
-            var r = game.JumpIn(2, new[] { C(7, Suit.Hearts) });
+        [Test]
+        public void JumpIn_CompletesTheSet_BurnsThePile_AndJumperPlaysAgain()
+        {
+            // Un paquet : 3 sept déjà posés à la suite, le joueur C détient le quatrième.
+            var game = Setup3(new[] { C(13) }, new RulesConfig { JumpIn = true }, Sevens(3));
+            game.Players[2].Hand.Add(C(7, Suit.Spades));
+
+            CollectionAssert.AreEqual(new[] { C(7, Suit.Spades) }, game.GetJumpInCards(2));
+            var r = game.JumpIn(2, new[] { C(7, Suit.Spades) });
+
             Assert.IsTrue(r.Ok);
-            Assert.AreEqual(0, game.CurrentPlayerIndex, "Après C, c'est à A");
-            Assert.AreEqual(2, game.DiscardPile.Count);
+            Assert.IsTrue(r.Burned);
+            Assert.AreEqual(2, game.CurrentPlayerIndex, "Défausse brûlée : le joueur C rejoue");
+            Assert.AreEqual(0, game.DiscardPile.Count);
         }
 
         [Test]
-        public void JumpIn_Refused_WhenDisabledMismatchedOrCurrentPlayer()
+        public void JumpIn_IsRefused_WhenTheSetIsNotAlmostComplete()
         {
-            var off = Setup3(new[] { C(13) }, new RulesConfig { JumpIn = false }, new[] { C(7) });
-            off.Players[1].Hand.Add(C(7, Suit.Hearts));
-            Assert.AreEqual(MoveError.CannotJumpIn, off.JumpIn(1, new[] { C(7, Suit.Hearts) }).Error);
+            var rules = new RulesConfig { JumpIn = true };
 
-            var on = Setup3(new[] { C(13), C(7, Suit.Clubs) }, new RulesConfig { JumpIn = true }, new[] { C(7) });
-            Assert.AreEqual(MoveError.CannotJumpIn, on.JumpIn(1, new[] { C(9, Suit.Hearts) }).Error, "Valeur différente");
-            Assert.AreEqual(MoveError.CannotJumpIn, on.JumpIn(0, new[] { C(7, Suit.Clubs) }).Error, "C'est son tour");
+            var one = Setup3(new[] { C(13) }, rules, new[] { C(7, Suit.Clubs) });
+            one.Players[2].Hand.Add(C(7, Suit.Spades));
+            Assert.IsEmpty(one.GetJumpInCards(2), "Un seul 7 posé : trop tôt");
+            Assert.AreEqual(MoveError.CannotJumpIn, one.JumpIn(2, new[] { C(7, Suit.Spades) }).Error);
+
+            var two = Setup3(new[] { C(13) }, rules, Sevens(2));
+            two.Players[2].Hand.Add(C(7, Suit.Spades));
+            Assert.IsEmpty(two.GetJumpInCards(2), "Deux 7 posés : il en manque encore deux");
+        }
+
+        [Test]
+        public void JumpIn_IsRefused_ForTheCurrentPlayer_WhenDisabled_OrWithoutTheLastCard()
+        {
+            var on = Setup3(new[] { C(13), C(7, Suit.Spades) }, new RulesConfig { JumpIn = true }, Sevens(3));
+            Assert.IsEmpty(on.GetJumpInCards(0), "C'est son tour : il joue normalement");
+            Assert.AreEqual(MoveError.CannotJumpIn, on.JumpIn(0, new[] { C(7, Suit.Spades) }).Error);
+            Assert.AreEqual(MoveError.CannotJumpIn, on.JumpIn(1, new[] { C(9, Suit.Hearts) }).Error,
+                "Le joueur B n'a pas de 7");
+
+            var off = Setup3(new[] { C(13) }, new RulesConfig { JumpIn = false }, Sevens(3));
+            off.Players[1].Hand.Add(C(7, Suit.Spades));
+            Assert.AreEqual(MoveError.CannotJumpIn, off.JumpIn(1, new[] { C(7, Suit.Spades) }).Error, "Option désactivée");
 
             var empty = Setup3(new[] { C(13) }, new RulesConfig { JumpIn = true });
             Assert.AreEqual(MoveError.CannotJumpIn, empty.JumpIn(1, new[] { C(9, Suit.Hearts) }).Error, "Défausse vide");
         }
 
         [Test]
-        public void JumpIn_CompletingFourOfAKind_BurnsAndJumperPlaysAgain()
+        public void JumpIn_NeedsExactlyTheOneMissingCard()
         {
-            var game = Setup3(new[] { C(13) }, new RulesConfig { JumpIn = true },
-                new[] { C(7, Suit.Clubs), C(7, Suit.Diamonds), C(7, Suit.Hearts) });
-            game.Players[2].Hand.Add(C(7));
+            var game = Setup3(new[] { C(13) }, new RulesConfig { JumpIn = true }, Sevens(3));
+            game.Players[2].Hand.AddRange(new[] { C(7, Suit.Spades), C(9, Suit.Spades) });
 
-            var r = game.JumpIn(2, new[] { C(7) });
-            Assert.IsTrue(r.Burned);
-            Assert.AreEqual(2, game.CurrentPlayerIndex);
-            Assert.AreEqual(0, game.DiscardPile.Count);
+            Assert.AreEqual(MoveError.InvalidCards, game.JumpIn(2, new[] { C(9, Suit.Spades) }).Error);
+            Assert.AreEqual(MoveError.InvalidCards,
+                game.JumpIn(2, new[] { C(7, Suit.Spades), C(9, Suit.Spades) }).Error);
+            Assert.IsTrue(game.JumpIn(2, new[] { C(7, Suit.Spades) }).Ok);
+        }
+
+        [Test]
+        public void JumpIn_WithTwoDecks_NeedsSevenCardsAlreadyDown()
+        {
+            var rules = new RulesConfig { JumpIn = true };
+
+            var three = Setup3(new[] { C(13) }, rules, Sevens(3), deckCount: 2);
+            three.Players[2].Hand.Add(C(7, Suit.Spades));
+            Assert.AreEqual(8, three.FullSetSize);
+            Assert.IsEmpty(three.GetJumpInCards(2), "Avec deux paquets, 3 ne suffisent plus");
+
+            var seven = Setup3(new[] { C(13) }, rules, Sevens(7), deckCount: 2);
+            seven.Players[2].Hand.Add(C(7, Suit.Spades));
+            Assert.AreEqual(1, seven.GetJumpInCards(2).Count);
+            Assert.IsTrue(seven.JumpIn(2, new[] { C(7, Suit.Spades) }).Burned);
+        }
+
+        [Test]
+        public void FullSet_BurnsTheNeededNumberOfCards_AccordingToTheDeckCount()
+        {
+            var oneDeck = Setup3(new[] { C(7, Suit.Spades) }, new RulesConfig(), Sevens(3));
+            Assert.IsTrue(oneDeck.Play(0, new[] { C(7, Suit.Spades) }).Burned, "Quatre 7 avec un paquet");
+
+            var twoDecks = Setup3(new[] { C(7, Suit.Spades) }, new RulesConfig(), Sevens(3), deckCount: 2);
+            var r = twoDecks.Play(0, new[] { C(7, Suit.Spades) });
+            Assert.IsFalse(r.Burned, "Quatre 7 avec deux paquets : il en faut huit");
+            Assert.AreEqual(4, twoDecks.DiscardPile.Count);
+
+            var eight = Setup3(new[] { C(7, Suit.Spades) }, new RulesConfig(), Sevens(7), deckCount: 2);
+            Assert.IsTrue(eight.Play(0, new[] { C(7, Suit.Spades) }).Burned, "Huit 7 avec deux paquets");
         }
 
         // ---------------------------------------------------------------- Échange de début de manche

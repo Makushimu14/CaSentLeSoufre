@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace CaSentLeSoufre.Core
 {
     public enum GamePhase
@@ -50,9 +53,17 @@ namespace CaSentLeSoufre.Core
         /// <summary>Joueur contraint de ramasser la défausse par un pouvoir de ramassage forcé.</summary>
         public int? ForcedPickUpPlayer { get; }
 
+        /// <summary>Cartes posées par ce coup (vide pour un ramassage), pour l'affichage et les animations.</summary>
+        public IReadOnlyList<Card> Played => _played ?? Array.Empty<Card>();
+
+        private readonly IReadOnlyList<Card> _played;
+
+        /// <summary>Nombre de cartes ramassées par le joueur (ramassage, ou carte aveugle injouable).</summary>
+        public int PickedUpCount { get; }
+
         public MoveResult(MoveError error, bool burned = false, bool pickedUp = false,
             bool playerFinished = false, Card? revealed = null, PowerType? power = null,
-            int? forcedPickUpPlayer = null)
+            int? forcedPickUpPlayer = null, IReadOnlyList<Card> played = null, int pickedUpCount = 0)
         {
             Error = error;
             Burned = burned;
@@ -61,6 +72,8 @@ namespace CaSentLeSoufre.Core
             Revealed = revealed;
             Power = power;
             ForcedPickUpPlayer = forcedPickUpPlayer;
+            _played = played;
+            PickedUpCount = pickedUpCount;
         }
 
         public static MoveResult Fail(MoveError error) => new MoveResult(error);

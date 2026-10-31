@@ -15,7 +15,7 @@ namespace CaSentLeSoufre.Core.Ai
         public static int Strength(RulesConfig rules, int rank)
         {
             var power = rules.PowerOf(rank);
-            if (power == null) return rank;
+            if (power == null) return Card.Strength(rank);
             switch (power.Value)
             {
                 case PowerType.Burn: return 22;
@@ -101,72 +101,94 @@ namespace CaSentLeSoufre.Core.Ai
         /// </summary>
         public static bool TryJumpIn(Game game, int playerIndex, Random rng)
         {
-            if (!game.Rules.JumpIn || game.Phase != GamePhase.Play
-                || playerIndex == game.CurrentPlayerIndex || game.DiscardPile.Count == 0)
-                return false;
+            var cards = ChooseJumpIn(game, playerIndex, rng);
+            return cards != null && game.JumpIn(playerIndex, cards).Ok;
+        }
 
-            var player = game.Players[playerIndex];
-            var zone = game.GetActiveZone(playerIndex);
-            if (!player.HasCards || zone == Zone.FaceDown) return false;
-
-            int topRank = game.DiscardPile[game.DiscardPile.Count - 1].Rank;
-            var matching = (zone == Zone.Hand ? player.Hand : player.FaceUp)
-                .Where(c => c.Rank == topRank).ToList();
-            if (matching.Count == 0) return false;
+        /// <summary>
+        /// Décide si le joueur veut jouer à la volée dans la situation actuelle (selon sa difficulté) et avec
+        /// quelles cartes. Retourne null s'il ne peut pas ou ne veut pas. Ne joue rien.
+        /// </summary>
+        public static List<Card> ChooseJumpIn(Game game, int playerIndex, Random rng)
+        {
+            // Seule la dernière carte d'un jeu complet de même valeur se joue à la volée.
+            var cards = game.GetJumpInCards(playerIndex);
+            if (cards.Count == 0) return null;
 
             bool wants;
-            switch (player.Difficulty)
+            switch (game.Players[playerIndex].Difficulty)
             {
                 case AiDifficulty.Easy:
                     wants = false;
                     break;
                 case AiDifficulty.Normal:
-                    wants = rng.Next(100) < 30;
+                    wants = rng.Next(100) < 50;
                     break;
                 default:
-                    bool completesFour = game.Rules.FourOfAKindBurns && TopRun(game) + matching.Count >= 4;
-                    wants = completesFour || rng.Next(100) < 60;
+                    wants = true; // la défausse brûle et on rejoue : toujours intéressant
                     break;
             }
 
-            return wants && game.JumpIn(playerIndex, matching).Ok;
+            return wants ? cards.Take(1).ToList() : null;
+        }
+
+        /// <summary>
+        /// Après avoir posé <paramref name="playedRank"/>, le joueur suivant sera-t-il à coup sûr bloqué ? Seul ce qui
+        /// est connu de tous compte (cartes visibles, cartes ramassées sur la défausse) : si sa main contient
+        /// des cartes inconnues, ou s'il joue à l'aveugle, on ne peut rien affirmer.
+        /// </summary>
+        private static bool TrapsNextPlayer(Game game, int playedRank)
+        {
+            int next = game.PeekNextPlayerIndex();
+            if (next == game.CurrentPlayerIndex) return false;
+
+            var opponent = game.Players[next];
+            IEnumerable<Card> visible;
+            switch (game.GetActiveZone(next))
+            {
+                case Zone.Hand:
+                    if (!opponent.HandFullyKnown) return false;
+                    visible = opponent.KnownInHand;
+                    break;
+                case Zone.FaceUp:
+                    visible = opponent.FaceUp;
+                    break;
+                default:
+                    return false; // cartes cachées : inconnues
+            }
+
+            foreach (var card in visible)
+                if (game.CanPlayRankOn(playedRank, card.Rank)) return false;
+            return true;
         }
 
         private static List<Card> ChooseHard(Game game, List<List<Card>> groups)
         {
             var rules = game.Rules;
 
-            // 1. Une brûlure « gratuite » (carré) permet de rejouer aussitôt.
+            // 1. Une brûlure « gratuite » (jeu complet de même valeur) permet de rejouer aussitôt.
             if (rules.FourOfAKindBurns)
             {
-                int run = TopRun(game);
+                int run = game.TopRunLength();
                 foreach (var g in groups)
                     if (run > 0 && game.DiscardPile[game.DiscardPile.Count - 1].Rank == g[0].Rank
-                        && run + g.Count >= 4)
+                        && run + g.Count >= game.FullSetSize)
                         return g;
             }
 
-            // 2. Cartes sans pouvoir d'abord, de la plus faible à la plus forte.
+            // 2. Cartes sans pouvoir d'abord, de la plus faible à la plus forte (le 2 sans pouvoir est la plus forte).
+            //    Si une carte met le joueur suivant dans l'impossibilité de jouer d'après ce que tout le monde sait
+            //    de sa main, on prend la plus faible de celles-là : il devra ramasser.
             var ordinary = groups.Where(g => rules.PowerOf(g[0].Rank) == null)
-                .OrderBy(g => g[0].Rank).FirstOrDefault();
-            if (ordinary != null) return ordinary;
+                .OrderBy(g => Strength(rules, g[0].Rank)).ToList();
+            if (ordinary.Count > 0)
+                return ordinary.FirstOrDefault(g => TrapsNextPlayer(game, g[0].Rank)) ?? ordinary[0];
 
             // 3. Sinon un pouvoir : la brûlure sur une grosse défausse, le moins précieux sinon.
             var powered = groups.OrderBy(g => Strength(rules, g[0].Rank)).ToList();
             var burn = powered.FirstOrDefault(g => rules.PowerOf(g[0].Rank) == PowerType.Burn);
             if (burn != null && game.DiscardPile.Count >= 6) return burn;
             return powered[0];
-        }
-
-        /// <summary>Nombre de cartes consécutives de même rang au sommet de la défausse.</summary>
-        private static int TopRun(Game game)
-        {
-            var pile = game.DiscardPile;
-            if (pile.Count == 0) return 0;
-            int rank = pile[pile.Count - 1].Rank;
-            int run = 0;
-            for (int i = pile.Count - 1; i >= 0 && pile[i].Rank == rank; i--) run++;
-            return run;
         }
     }
 }

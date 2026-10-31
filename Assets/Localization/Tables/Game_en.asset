@@ -227,11 +227,11 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 15599575662606
-    m_Localized: Four of a kind burns the pile
+    m_Localized: A complete set burns the pile
     m_Metadata:
       m_Items: []
   - m_Id: 15599575662607
-    m_Localized: Four cards of the same value in a row burn the pile and the player plays again.
+    m_Localized: All the cards of one value played in a row (4 per deck used) burn the pile and the player plays again.
     m_Metadata:
       m_Items: []
   - m_Id: 15599575662608
@@ -239,7 +239,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 15599575662609
-    m_Localized: Play out of turn a card matching the one on top of the discard pile.
+    m_Localized: Out of turn, play the last card of a complete set of one value (3 already played with one deck, 7 with two...).
     m_Metadata:
       m_Items: []
   - m_Id: 15599575662610
@@ -344,6 +344,170 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 19488370753548
     m_Localized: Your settings are saved automatically.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779111956480
+    m_Localized: Round {0}/{1}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288128
+    m_Localized: '{0}''s turn'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288129
+    m_Localized: Your turn
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288130
+    m_Localized: Reversed direction
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288131
+    m_Localized: 'Burned: {0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288132
+    m_Localized: Draw pile
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288133
+    m_Localized: Discard pile
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288134
+    m_Localized: Your hand
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288135
+    m_Localized: Face-up cards
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288136
+    m_Localized: Face-down cards
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288137
+    m_Localized: 'Hand: {0}  -  Face-down: {1}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288138
+    m_Localized: Out
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288139
+    m_Localized: 'Swap: click a card in your hand then a face-up card, then confirm.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288140
+    m_Localized: 'No playable card: pick up the pile.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288141
+    m_Localized: Play a face-down card.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288142
+    m_Localized: You can jump in!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288143
+    m_Localized: Click the selection again to play it.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288144
+    m_Localized: Ready
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288145
+    m_Localized: Play
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288146
+    m_Localized: Pick up the pile
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288147
+    m_Localized: Quit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288148
+    m_Localized: '{0} plays {1}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288149
+    m_Localized: '{0} jumps in: {1}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288150
+    m_Localized: '{0} picks up the pile ({1} cards)'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288151
+    m_Localized: '{0} reveals {1}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288152
+    m_Localized: '{0} reveals {1} and picks up the pile'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288153
+    m_Localized: The pile is burned!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288154
+    m_Localized: 'Power: {0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288155
+    m_Localized: '{0} must pick up the pile'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288156
+    m_Localized: '{0} has no cards left!'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288157
+    m_Localized: 'Round stopped: no further progress is possible.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288158
+    m_Localized: End of round {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288159
+    m_Localized: Game over
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288160
+    m_Localized: Finish order
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288161
+    m_Localized: last
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288162
+    m_Localized: Standings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288163
+    m_Localized: '{0}. {1} - {2} pts'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288164
+    m_Localized: 'Winner: {0}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288165
+    m_Localized: Next round
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288166
+    m_Localized: Back to menu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30209976467456
+    m_Localized: 'Hand: {0}'
     m_Metadata:
       m_Items: []
   references:

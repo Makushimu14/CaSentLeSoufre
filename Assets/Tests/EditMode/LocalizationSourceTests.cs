@@ -33,7 +33,16 @@ namespace CaSentLeSoufre.Tests
             "menu.section.powers", "menu.powers.hint", "menu.power.value", "menu.section.options",
             "option.four_of_a_kind.label", "option.four_of_a_kind.description", "option.jump_in.label",
             "option.jump_in.description", "option.initial_swap.label", "option.initial_swap.description",
-            "menu.start", "menu.errors.title", "menu.start_pending", "menu.language", "language.fr", "language.en",
+            "menu.start", "menu.errors.title", "menu.language", "language.fr", "language.en",
+            "table.round", "table.turn_of", "table.your_turn", "table.direction_reversed", "table.burned",
+            "table.draw_pile", "table.discard_pile", "table.hand", "table.face_up", "table.face_down",
+            "table.hand_count", "table.out", "table.swap_hint", "table.must_pick_up", "table.play_blind",
+            "table.jump_in_hint", "table.click_again", "table.ready", "table.play", "table.pick_up", "table.quit",
+            "table.log.played", "table.log.jumped_in", "table.log.picked_up", "table.log.blind",
+            "table.log.blind_fail", "table.log.burned", "table.log.power", "table.log.forced_pickup",
+            "table.log.finished", "table.log.stalemate", "table.round_over", "table.match_over",
+            "table.finish_order", "table.last", "table.standings", "table.standing_row", "table.winner",
+            "table.next_round", "table.back_to_menu",
             "card.rankname.11", "card.rankname.12", "card.rankname.13", "card.rankname.14"
         };
 

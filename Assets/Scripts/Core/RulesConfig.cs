@@ -40,7 +40,10 @@ namespace CaSentLeSoufre.Core
 
         public GameMode Mode = GameMode.Classic;
 
-        /// <summary>Quatre cartes de même rang consécutives sur la défausse la brûlent (le joueur rejoue).</summary>
+        /// <summary>
+        /// Toutes les cartes d'une même valeur posées à la suite (4 par paquet utilisé : 4, 8...) brûlent la
+        /// défausse et le joueur rejoue.
+        /// </summary>
         public bool FourOfAKindBurns = true;
 
         /// <summary>
@@ -51,8 +54,8 @@ namespace CaSentLeSoufre.Core
         public List<PowerSlot> Powers = DefaultPowers();
 
         /// <summary>
-        /// Jeu à la volée : n'importe quel joueur peut, hors de son tour, jouer une carte de même valeur
-        /// que celle du dessus de la défausse. Le tour reprend alors après lui.
+        /// Jeu à la volée : un joueur peut, hors de son tour, poser la dernière carte d'un jeu complet de même
+        /// valeur (3 déjà posées à la suite avec un paquet, 7 avec deux...). Le tour reprend alors après lui.
         /// </summary>
         public bool JumpIn = false;
 

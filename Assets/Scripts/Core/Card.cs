@@ -29,6 +29,12 @@ namespace CaSentLeSoufre.Core
             Suit = suit;
         }
 
+        /// <summary>
+        /// Force d'une valeur pour comparer deux cartes : le 3 est la plus faible, puis le 4 ... le roi, l'as,
+        /// et le 2 est la plus forte de toutes (sans pouvoir, il bat tout).
+        /// </summary>
+        public static int Strength(int rank) => rank == 2 ? Ace + 1 : rank;
+
         /// <summary>Les « têtes » : valet, dame et roi (l'as n'en fait pas partie).</summary>
         public static bool IsFace(int rank) => rank >= Jack && rank <= King;
 

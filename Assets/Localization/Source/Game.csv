@@ -46,15 +46,14 @@ menu.section.powers,Pouvoirs de cartes ({0}/{1}),Card powers ({0}/{1})
 menu.powers.hint,Activez les pouvoirs que vous voulez et choisissez la valeur de carte qui porte chacun.,Turn on the powers you want and choose the card value that carries each one.
 menu.power.value,Valeur,Value
 menu.section.options,Options,Options
-option.four_of_a_kind.label,Le carré brûle la défausse,Four of a kind burns the pile
-option.four_of_a_kind.description,"Quatre cartes de même valeur de suite brûlent la défausse et le joueur rejoue.","Four cards of the same value in a row burn the pile and the player plays again."
+option.four_of_a_kind.label,Le jeu complet brûle la défausse,A complete set burns the pile
+option.four_of_a_kind.description,"Toutes les cartes d'une même valeur posées à la suite (4 par paquet utilisé) brûlent la défausse et le joueur rejoue.","All the cards of one value played in a row (4 per deck used) burn the pile and the player plays again."
 option.jump_in.label,Jeu à la volée,Jump-in play
-option.jump_in.description,"Jouez hors de votre tour une carte de même valeur que celle du dessus de la défausse.","Play out of turn a card matching the one on top of the discard pile."
+option.jump_in.description,"Hors de votre tour, posez la dernière carte d'un jeu complet de même valeur (3 déjà posées avec un paquet, 7 avec deux...).","Out of turn, play the last card of a complete set of one value (3 already played with one deck, 7 with two...)."
 option.initial_swap.label,Échange de début de manche,Swap at the start of a round
 option.initial_swap.description,"Échangez des cartes de votre main avec vos cartes visibles avant de jouer.","Swap cards from your hand with your face-up cards before playing."
 menu.start,Lancer la partie,Start game
 menu.errors.title,Réglages à corriger,Settings to fix
-menu.start_pending,La table de jeu n'est pas encore disponible.,The game table is not available yet.
 menu.language,Langue,Language
 language.fr,Français,Français
 language.en,English,English
@@ -76,3 +75,43 @@ menu.section.opponents,Adversaires (IA),Opponents (AI)
 menu.opponents.hint,"Ces adversaires sont mémorisés. Selon le nombre de joueurs choisi, seuls les premiers jouent.","These opponents are remembered. Depending on the number of players, only the first ones play."
 menu.unused,inutilisé,unused
 menu.autosave,Vos paramètres sont enregistrés automatiquement.,Your settings are saved automatically.
+table.round,Manche {0}/{1},Round {0}/{1}
+table.turn_of,Tour de {0},{0}'s turn
+table.your_turn,À vous de jouer,Your turn
+table.direction_reversed,Sens inversé,Reversed direction
+table.burned,Brûlées : {0},Burned: {0}
+table.draw_pile,Pioche,Draw pile
+table.discard_pile,Défausse,Discard pile
+table.hand,Votre main,Your hand
+table.face_up,Cartes visibles,Face-up cards
+table.face_down,Cartes cachées,Face-down cards
+table.out,Sorti,Out
+table.swap_hint,"Échangez : cliquez une carte de votre main puis une carte visible, puis validez.","Swap: click a card in your hand then a face-up card, then confirm."
+table.must_pick_up,Aucune carte jouable : ramassez la défausse.,No playable card: pick up the pile.
+table.play_blind,Jouez une carte cachée.,Play a face-down card.
+table.jump_in_hint,Vous pouvez jouer à la volée !,You can jump in!
+table.click_again,Cliquez de nouveau sur la sélection pour la jouer.,Click the selection again to play it.
+table.ready,Prêt,Ready
+table.play,Jouer,Play
+table.pick_up,Ramasser la défausse,Pick up the pile
+table.quit,Abandonner,Quit
+table.log.played,{0} pose {1},{0} plays {1}
+table.log.jumped_in,{0} joue à la volée : {1},{0} jumps in: {1}
+table.log.picked_up,{0} ramasse la défausse ({1} cartes),{0} picks up the pile ({1} cards)
+table.log.blind,{0} retourne {1},{0} reveals {1}
+table.log.blind_fail,{0} retourne {1} et ramasse la défausse,{0} reveals {1} and picks up the pile
+table.log.burned,La défausse est brûlée !,The pile is burned!
+table.log.power,Pouvoir : {0},Power: {0}
+table.log.forced_pickup,{0} doit ramasser la défausse,{0} must pick up the pile
+table.log.finished,{0} n'a plus de cartes !,{0} has no cards left!
+table.log.stalemate,Manche arrêtée : plus aucun progrès possible.,Round stopped: no further progress is possible.
+table.round_over,Fin de la manche {0},End of round {0}
+table.match_over,Fin de la partie,Game over
+table.finish_order,Ordre d'arrivée,Finish order
+table.last,dernier,last
+table.standings,Classement,Standings
+table.standing_row,{0}. {1} - {2} pts,{0}. {1} - {2} pts
+table.winner,Vainqueur : {0},Winner: {0}
+table.next_round,Manche suivante,Next round
+table.back_to_menu,Retour au menu,Back to menu
+table.hand_count,Main : {0},Hand: {0}

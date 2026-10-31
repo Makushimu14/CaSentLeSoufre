@@ -343,6 +343,170 @@ MonoBehaviour:
     m_Key: menu.autosave
     m_Metadata:
       m_Items: []
+  - m_Id: 24779111956480
+    m_Key: table.round
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288128
+    m_Key: table.turn_of
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288129
+    m_Key: table.your_turn
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288130
+    m_Key: table.direction_reversed
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288131
+    m_Key: table.burned
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288132
+    m_Key: table.draw_pile
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288133
+    m_Key: table.discard_pile
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288134
+    m_Key: table.hand
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288135
+    m_Key: table.face_up
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288136
+    m_Key: table.face_down
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288137
+    m_Key: table.opponent_counts
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288138
+    m_Key: table.out
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288139
+    m_Key: table.swap_hint
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288140
+    m_Key: table.must_pick_up
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288141
+    m_Key: table.play_blind
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288142
+    m_Key: table.jump_in_hint
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288143
+    m_Key: table.click_again
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288144
+    m_Key: table.ready
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288145
+    m_Key: table.play
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288146
+    m_Key: table.pick_up
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288147
+    m_Key: table.quit
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288148
+    m_Key: table.log.played
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288149
+    m_Key: table.log.jumped_in
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288150
+    m_Key: table.log.picked_up
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288151
+    m_Key: table.log.blind
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288152
+    m_Key: table.log.blind_fail
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288153
+    m_Key: table.log.burned
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288154
+    m_Key: table.log.power
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288155
+    m_Key: table.log.forced_pickup
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288156
+    m_Key: table.log.finished
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288157
+    m_Key: table.log.stalemate
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288158
+    m_Key: table.round_over
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288159
+    m_Key: table.match_over
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288160
+    m_Key: table.finish_order
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288161
+    m_Key: table.last
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288162
+    m_Key: table.standings
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288163
+    m_Key: table.standing_row
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288164
+    m_Key: table.winner
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288165
+    m_Key: table.next_round
+    m_Metadata:
+      m_Items: []
+  - m_Id: 24779162288166
+    m_Key: table.back_to_menu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 30209976467456
+    m_Key: table.hand_count
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

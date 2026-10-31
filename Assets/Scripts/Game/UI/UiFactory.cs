@@ -8,6 +8,7 @@ namespace CaSentLeSoufre.App.UI
     public static class Theme
     {
         public static readonly Color Background = Hex("120C0C");
+        public static readonly Color Felt = Hex("12201A");
         public static readonly Color Panel = Hex("201515");
         public static readonly Color PanelLight = Hex("2E1F1F");
         public static readonly Color Accent = Hex("C8452B");
@@ -15,6 +16,7 @@ namespace CaSentLeSoufre.App.UI
         public static readonly Color Muted = Hex("A09286");
         public static readonly Color Error = Hex("EE6B57");
         public static readonly Color Disabled = Hex("3A2E2E");
+        public static readonly Color PanelCurrent = Hex("3A1812");
 
         private static Color Hex(string hex)
         {
