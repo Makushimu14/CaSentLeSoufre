@@ -49,13 +49,20 @@ namespace CaSentLeSoufre.Core
         public int RoundsCompleted { get; private set; }
         public bool IsOver => RoundsCompleted >= Settings.RoundCount;
 
-        public Match(MatchSettings settings, int seed)
+        /// <summary>
+        /// Carnet de statistiques alimenté à chaque manche terminée et à la fin de la partie (peut être null).
+        /// Une partie abandonnée en cours de route n'est pas comptée comme partie, seules ses manches terminées le sont.
+        /// </summary>
+        public StatsBook Stats { get; }
+
+        public Match(MatchSettings settings, int seed, StatsBook stats = null)
         {
             if (settings == null) throw new ArgumentNullException(nameof(settings));
             var errors = settings.Validate();
             if (errors.Count > 0) throw new ArgumentException(string.Join(" ", errors), nameof(settings));
 
             Settings = settings;
+            Stats = stats;
             _rng = new Random(seed);
             _players.Add(new Player(settings.HumanName.Trim(), isHuman: true));
             foreach (var ai in settings.Opponents)
@@ -96,6 +103,12 @@ namespace CaSentLeSoufre.Core
 
             RoundsCompleted++;
             _roundInProgress = false;
+
+            if (Stats != null)
+            {
+                Stats.RecordRound(_players, order, CurrentGame.LoserIndex, Settings.Rules.Mode);
+                if (IsOver) Stats.RecordMatch(_players, GetStandings(), Settings.Rules.Mode);
+            }
         }
 
         /// <summary>

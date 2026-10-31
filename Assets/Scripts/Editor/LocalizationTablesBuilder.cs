@@ -10,7 +10,7 @@ using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using UnityEngine.Localization.Tables;
 
-namespace CaSentLeSoufre.Editor
+namespace CaSentLeSoufre.EditorTools
 {
     /// <summary>
     /// Génère (ou met à jour) les langues et la table de traduction « Game » à partir de

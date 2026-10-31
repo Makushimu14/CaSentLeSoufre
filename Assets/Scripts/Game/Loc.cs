@@ -2,7 +2,7 @@ using CaSentLeSoufre.Core;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 
-namespace CaSentLeSoufre.Game
+namespace CaSentLeSoufre.App
 {
     /// <summary>
     /// Traduction des clés du moteur via la table « Game » du package Localization.

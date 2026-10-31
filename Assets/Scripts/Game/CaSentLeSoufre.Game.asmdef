@@ -1,6 +1,6 @@
 {
     "name": "CaSentLeSoufre.Game",
-    "rootNamespace": "CaSentLeSoufre.Game",
+    "rootNamespace": "CaSentLeSoufre.App",
     "references": [
         "CaSentLeSoufre.Core",
         "Unity.Localization"

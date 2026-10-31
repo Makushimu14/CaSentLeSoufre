@@ -1,6 +1,6 @@
 {
     "name": "CaSentLeSoufre.Editor",
-    "rootNamespace": "CaSentLeSoufre.Editor",
+    "rootNamespace": "CaSentLeSoufre.EditorTools",
     "references": [
         "Unity.Localization",
         "Unity.Localization.Editor"
