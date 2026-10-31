@@ -44,6 +44,28 @@ namespace CaSentLeSoufre.App.UI
         private bool _saveDisabled;
         private float _abandonConfirmUntil;
 
+        // Animations : cartes volantes par-dessus la table, et défausse affichée qui peut retarder sur la partie
+        // le temps que les cartes arrivent (elle se recale toujours dès que plus rien ne vole).
+        private const float FlightSeconds = 0.38f;
+        private const float StaggerSeconds = 0.07f;
+        private const int MaxFlyingCards = 6;
+
+        private RectTransform _flightLayer;
+        private CardFlights _flights;
+        private TableEffects _effects;
+
+        // Distribution en cours : les mains sont masquées et la partie attend que les cartes soient arrivées.
+        private bool _dealing;
+        private readonly List<Card> _visualDiscard = new List<Card>();
+        private bool _needsRefresh;
+        private int _lastDrawCount;
+        private RectTransform _discardAnchor;
+        private RectTransform _drawAnchor;
+        private RectTransform _handArea;
+        private readonly Dictionary<int, RectTransform> _seatAnchors = new Dictionary<int, RectTransform>();
+        private readonly List<KeyValuePair<Card, RectTransform>> _humanCardAnchors =
+            new List<KeyValuePair<Card, RectTransform>>();
+
         private readonly List<string> _log = new List<string>();
         private readonly List<int> _selected = new List<int>();
         private int _swapHandIndex = -1;
@@ -98,7 +120,9 @@ namespace CaSentLeSoufre.App.UI
             BuildCanvas();
             _session.StartRound();
             HandleEvents(_session.DrainEvents());
+            StartDeal();
             Refresh();
+            PlayDealAnimation();
             SaveProgress();
         }
 
@@ -108,6 +132,7 @@ namespace CaSentLeSoufre.App.UI
             _stats = StatsStorage.Load();
             _match = Match.FromData(saved, _stats);
             _session = TableSession.Resume(_match, new TableTimings(), new System.Random().Next());
+            _lastDrawCount = _session.Game != null ? _session.Game.DrawPile.Count : 0;
 
             BuildCanvas();
             Refresh();
@@ -126,11 +151,23 @@ namespace CaSentLeSoufre.App.UI
                 Refresh();
             }
 
+            // Les événements sont traités avant tout rafraîchissement : les cartes volantes ont besoin de l'ancien
+            // état de la table (positions des cartes, défausse affichée) pour partir du bon endroit.
             var events = _session.DrainEvents();
-            if (events.Count == 0) return;
-            HandleEvents(events);
-            Refresh();
-            SaveProgress();
+            if (events.Count > 0) HandleEvents(events);
+
+            if (_flights != null) _flights.Update(Time.unscaledDeltaTime);
+            if (_effects != null) _effects.Update(Time.unscaledDeltaTime);
+
+            // Les dernières cartes distribuées sont arrivées : on montre les mains et la partie reprend.
+            if (_dealing && _flights != null && _flights.Active == 0) FinishDeal();
+
+            if (events.Count > 0 || _needsRefresh)
+            {
+                _needsRefresh = false;
+                Refresh();
+            }
+            if (events.Count > 0) SaveProgress();
         }
 
         // ---------------------------------------------------------------- Sauvegarde et départ
@@ -208,6 +245,12 @@ namespace CaSentLeSoufre.App.UI
 
             _view = UiFactory.NewRect("View", root);
             UiFactory.Stretch(_view);
+
+            // Les cartes volantes vivent dans leur propre couche : la reconstruction de la table ne les détruit pas.
+            _flightLayer = UiFactory.NewRect("Flights", root);
+            UiFactory.Stretch(_flightLayer);
+            _flights = new CardFlights(_flightLayer);
+            _effects = new TableEffects(_flightLayer);
         }
 
         private void Exit()
@@ -243,8 +286,19 @@ namespace CaSentLeSoufre.App.UI
 
         private void HandleEvents(List<TableEvent> events)
         {
+            // Cartes piochées depuis le dernier lot d'événements : attribuées au dernier coup joué du lot.
+            int drawNow = _session.Game.DrawPile.Count;
+            bool newRound = events.Any(x => x.Kind == TableEventKind.RoundStarted);
+            int drawn = newRound ? 0 : Mathf.Max(0, _lastDrawCount - drawNow);
+            _lastDrawCount = drawNow;
+            int lastPlay = events.FindLastIndex(x => x.Kind == TableEventKind.Played
+                                                     || x.Kind == TableEventKind.JumpedIn
+                                                     || x.Kind == TableEventKind.BlindPlayed);
+            int position = -1;
+
             foreach (var e in events)
             {
+                position++;
                 switch (e.Kind)
                 {
                     case TableEventKind.Played:
@@ -273,6 +327,8 @@ namespace CaSentLeSoufre.App.UI
 
                 _selected.Clear();
                 _swapHandIndex = -1;
+
+                AnimateEvent(e, position == lastPlay ? drawn : 0);
             }
         }
 
@@ -287,6 +343,354 @@ namespace CaSentLeSoufre.App.UI
             if (result.PlayerFinished) AddLog(Loc.Get("table.log.finished", NameOf(e.PlayerIndex)));
         }
 
+        // ---------------------------------------------------------------- Animations
+
+        /// <summary>
+        /// La défausse telle qu'on la voit : en retard sur la partie tant que des cartes sont en vol (pour ne pas
+        /// montrer une carte avant qu'elle n'arrive), identique à la partie dès que plus rien ne vole.
+        /// </summary>
+        private List<Card> ShownDiscard()
+        {
+            if (_flights == null || _flights.Active == 0)
+            {
+                _visualDiscard.Clear();
+                _visualDiscard.AddRange(_session.Game.DiscardPile);
+            }
+            return _visualDiscard;
+        }
+
+        private Vector3? PointOf(RectTransform rect) => rect == null ? (Vector3?)null : _flights.ToLayer(rect);
+
+        private Vector3? SeatPoint(int player) =>
+            _seatAnchors.TryGetValue(player, out var seat) ? PointOf(seat) : null;
+
+        /// <summary>D'où part une carte jouée : de sa place dans la main du joueur, sinon de sa bande.</summary>
+        private Vector3? SourcePoint(int player, Card card, List<RectTransform> used)
+        {
+            if (player == TableSession.HumanIndex)
+            {
+                foreach (var pair in _humanCardAnchors)
+                {
+                    if (pair.Key != card || pair.Value == null || used.Contains(pair.Value)) continue;
+                    used.Add(pair.Value);
+                    return PointOf(pair.Value);
+                }
+            }
+            return SeatPoint(player);
+        }
+
+        /// <summary>Où arrivent des cartes ramassées ou piochées : la main du joueur, ou la bande d'un adversaire.</summary>
+        private Vector3? DestinationPoint(int player) =>
+            player == TableSession.HumanIndex ? (PointOf(_handArea) ?? SeatPoint(player)) : SeatPoint(player);
+
+        private void AnimateEvent(TableEvent e, int drawn)
+        {
+            if (_flights == null || _discardAnchor == null) return;
+
+            var result = e.Result;
+            int player = e.PlayerIndex;
+            switch (e.Kind)
+            {
+                case TableEventKind.Played:
+                case TableEventKind.JumpedIn:
+                    if (e.Kind == TableEventKind.JumpedIn && _effects != null)
+                    {
+                        var seat = SeatPoint(player);
+                        if (seat.HasValue)
+                            _effects.Banner(Loc.Get("table.fx.jump_in"), seat.Value + new Vector3(0, 40, 0), new Color(1f, 0.82f, 0.25f));
+                    }
+
+                    // Les cartes des adversaires partent face cachée et se retournent en vol.
+                    FlyToPile(player, result.Played, result, flip: player != TableSession.HumanIndex, pickUpAfter: false);
+                    FlyDraws(player, drawn);
+                    break;
+
+                case TableEventKind.BlindPlayed:
+                    var blind = result.Played.Count > 0 ? result.Played
+                        : result.Revealed.HasValue ? new List<Card> { result.Revealed.Value }
+                        : new List<Card>();
+                    FlyToPile(player, blind, result, flip: true, pickUpAfter: result.PickedUp);
+                    break;
+
+                case TableEventKind.PickedUp:
+                    FlyPileToPlayer(player);
+                    break;
+            }
+        }
+
+        /// <summary>Des cartes jouées volent vers la défausse ; à l'arrivée de la dernière, on enchaîne les conséquences.</summary>
+        private void FlyToPile(int player, IReadOnlyList<Card> cards, MoveResult result, bool flip, bool pickUpAfter)
+        {
+            var to = PointOf(_discardAnchor);
+            if (!to.HasValue || cards.Count == 0) return;
+
+            var used = new List<RectTransform>();
+            for (int i = 0; i < cards.Count; i++)
+            {
+                var card = cards[i];
+                var from = SourcePoint(player, card, used);
+                if (!from.HasValue) continue;
+
+                bool last = i == cards.Count - 1;
+                _flights.Add(new CardFlights.Spec
+                {
+                    Face = card,
+                    FlipToFace = flip,
+                    Size = PileCard,
+                    From = from.Value,
+                    To = to.Value,
+                    Delay = i * StaggerSeconds,
+                    Duration = FlightSeconds,
+                    StartScale = player == TableSession.HumanIndex ? 1f : 0.7f,
+                    EndScale = 1f,
+                    Arc = 26f,
+                    OnLand = () =>
+                    {
+                        _visualDiscard.Add(card);
+                        _needsRefresh = true;
+                        if (last) AfterLanding(player, result, pickUpAfter);
+                    }
+                });
+            }
+        }
+
+        private void AfterLanding(int player, MoveResult result, bool pickUpAfter)
+        {
+            if (pickUpAfter)
+            {
+                FlyPileToPlayer(player);
+                return;
+            }
+
+            PlayPowerEffects(player, result);
+
+            if (result.Burned) BurnPile();
+            else if (result.ForcedPickUpPlayer.HasValue) FlyPileToPlayer(result.ForcedPickUpPlayer.Value);
+        }
+
+        // ---------------------------------------------------------------- Distribution
+
+        /// <summary>Début de manche : les mains et les cartes des bandes restent masquées, le temps de la distribution.</summary>
+        private void StartDeal()
+        {
+            _dealing = true;
+            _session.Paused = true;
+            _lastDrawCount = _session.Game.DrawPile.Count;
+            _visualDiscard.Clear();
+        }
+
+        /// <summary>
+        /// Des dos de cartes partent de la pioche vers chaque joueur, chacun son tour. Au plus quelques paquets
+        /// par joueur volent, pour que la distribution reste courte même à dix joueurs.
+        /// </summary>
+        private void PlayDealAnimation()
+        {
+            var from = PointOf(_drawAnchor);
+            int players = _session.Game.Players.Count;
+            const int packetsPerPlayer = 3;
+
+            if (!from.HasValue || _flights == null)
+            {
+                FinishDeal();
+                return;
+            }
+
+            float stagger = Mathf.Min(0.07f, 1.4f / (players * packetsPerPlayer));
+            int sent = 0;
+            for (int round = 0; round < packetsPerPlayer; round++)
+            {
+                for (int player = 0; player < players; player++)
+                {
+                    var to = DestinationPoint(player);
+                    if (!to.HasValue) continue;
+
+                    _flights.Add(new CardFlights.Spec
+                    {
+                        Face = null,
+                        Size = PileCard,
+                        From = from.Value,
+                        To = to.Value,
+                        Delay = sent * stagger,
+                        Duration = 0.35f,
+                        StartScale = 1f,
+                        EndScale = player == TableSession.HumanIndex ? 1f : 0.6f,
+                        Arc = 14f
+                    });
+                    sent++;
+                }
+            }
+
+            if (sent == 0) FinishDeal();
+        }
+
+        private void FinishDeal()
+        {
+            _dealing = false;
+            _session.Paused = false;
+            _needsRefresh = true;
+        }
+
+        // ---------------------------------------------------------------- Effets des pouvoirs
+
+        private static Color PowerColor(PowerType power)
+        {
+            switch (power)
+            {
+                case PowerType.Reset: return new Color(0.96f, 0.80f, 0.30f);
+                case PowerType.Burn: return new Color(1.00f, 0.45f, 0.10f);
+                case PowerType.Transparent: return new Color(0.65f, 0.92f, 1.00f);
+                case PowerType.LowerOrEqual: return new Color(0.45f, 0.65f, 1.00f);
+                case PowerType.SameOrFace: return new Color(0.78f, 0.55f, 1.00f);
+                case PowerType.Skip: return new Color(1.00f, 0.38f, 0.32f);
+                case PowerType.Reverse: return new Color(0.30f, 0.95f, 0.80f);
+                case PowerType.ForcePickUp: return new Color(0.92f, 0.20f, 0.32f);
+                default: return new Color(0.55f, 1.00f, 0.55f); // PlayAgain
+            }
+        }
+
+        /// <summary>
+        /// Un bandeau avec le nom du pouvoir au-dessus de la défausse, et un effet propre à chaque pouvoir :
+        /// onde sur la pile, anneau qui tourne dans le sens du jeu, flash sur les joueurs visés.
+        /// </summary>
+        private void PlayPowerEffects(int player, MoveResult result)
+        {
+            if (_effects == null || _discardAnchor == null) return;
+
+            var pileAt = PointOf(_discardAnchor);
+            if (!pileAt.HasValue) return;
+            var pile = pileAt.Value;
+            var game = _session.Game;
+
+            if (result.Power.HasValue)
+            {
+                var power = result.Power.Value;
+                var color = PowerColor(power);
+                _effects.Banner(Loc.Get(PowerCatalog.LabelKey(power)), pile + new Vector3(0, 120, 0), color);
+
+                switch (power)
+                {
+                    case PowerType.Skip:
+                        foreach (int skipped in SkippedPlayers(player, result.Played.Count))
+                            PulseAtSeat(skipped, color);
+                        break;
+                    case PowerType.Reverse:
+                        // Les joueurs sont disposés dans le sens inverse des aiguilles d'une montre (sens +1) :
+                        // l'anneau tourne dans le nouveau sens du jeu.
+                        _effects.Orbit(pile, clockwise: game.Direction < 0, color: color);
+                        break;
+                    case PowerType.ForcePickUp:
+                        if (result.ForcedPickUpPlayer.HasValue) PulseAtSeat(result.ForcedPickUpPlayer.Value, color);
+                        _effects.Pulse(pile, color, 60f, 260f);
+                        break;
+                    case PowerType.PlayAgain:
+                        PulseAtSeat(player, color);
+                        break;
+                    default:
+                        _effects.Pulse(pile, color, 60f, 260f);
+                        break;
+                }
+            }
+
+            // Un jeu complet qui brûle, même sans pouvoir sur cette valeur.
+            if (result.Burned && result.Power != PowerType.Burn)
+            {
+                _effects.Banner(Loc.Get("table.fx.full_set"), pile + new Vector3(0, 175, 0), PowerColor(PowerType.Burn), 0.1f);
+                _effects.Pulse(pile, PowerColor(PowerType.Burn), 60f, 260f);
+            }
+        }
+
+        private void PulseAtSeat(int player, Color color)
+        {
+            var at = SeatPoint(player);
+            if (at.HasValue) _effects.Pulse(at.Value, color, 80f, 320f, 0.7f);
+        }
+
+        /// <summary>Les joueurs que passe un « saute un tour » : les premiers joueurs encore en jeu après celui qui a posé.</summary>
+        private List<int> SkippedPlayers(int actor, int count)
+        {
+            var game = _session.Game;
+            var skipped = new List<int>();
+            int n = game.Players.Count;
+            for (int k = 1; k <= n && skipped.Count < count; k++)
+            {
+                int index = (((actor + game.Direction * k) % n) + n) % n;
+                if (index == actor) break;
+                if (game.Players[index].HasCards) skipped.Add(index);
+            }
+            return skipped;
+        }
+
+        private void BurnPile()
+        {
+            if (_visualDiscard.Count == 0 || _discardAnchor == null) return;
+
+            var top = _visualDiscard[_visualDiscard.Count - 1];
+            _flights.Burn(top, _flights.ToLayer(_discardAnchor), PileCard, () =>
+            {
+                _visualDiscard.Clear();
+                _needsRefresh = true;
+            });
+        }
+
+        /// <summary>La défausse part vers celui qui la ramasse : au plus quelques cartes volent, la pile se vide aussitôt.</summary>
+        private void FlyPileToPlayer(int player)
+        {
+            if (_visualDiscard.Count == 0 || _discardAnchor == null) return;
+
+            var from = PointOf(_discardAnchor);
+            var to = DestinationPoint(player);
+            var cards = new List<Card>();
+            for (int i = _visualDiscard.Count - 1; i >= 0 && cards.Count < MaxFlyingCards; i--)
+                cards.Add(_visualDiscard[i]);
+
+            _visualDiscard.Clear();
+            _needsRefresh = true;
+            if (!from.HasValue || !to.HasValue) return;
+
+            for (int i = 0; i < cards.Count; i++)
+            {
+                _flights.Add(new CardFlights.Spec
+                {
+                    Face = cards[i],
+                    Size = PileCard,
+                    From = from.Value,
+                    To = to.Value,
+                    Delay = i * 0.06f,
+                    Duration = 0.42f,
+                    StartScale = 1f,
+                    EndScale = player == TableSession.HumanIndex ? 1f : 0.6f,
+                    Arc = -18f
+                });
+            }
+        }
+
+        /// <summary>Quelques dos de cartes partent de la pioche vers le joueur qui vient de piocher.</summary>
+        private void FlyDraws(int player, int drawn)
+        {
+            int count = Mathf.Min(drawn, 3);
+            if (count <= 0) return;
+
+            var from = PointOf(_drawAnchor);
+            var to = DestinationPoint(player);
+            if (!from.HasValue || !to.HasValue) return;
+
+            for (int i = 0; i < count; i++)
+            {
+                _flights.Add(new CardFlights.Spec
+                {
+                    Face = null,
+                    Size = PileCard,
+                    From = from.Value,
+                    To = to.Value,
+                    Delay = 0.22f + i * 0.08f,
+                    Duration = 0.35f,
+                    StartScale = 1f,
+                    EndScale = player == TableSession.HumanIndex ? 1f : 0.6f,
+                    Arc = 18f
+                });
+            }
+        }
+
         // ---------------------------------------------------------------- Reconstruction
 
         private void Refresh()
@@ -295,6 +699,11 @@ namespace CaSentLeSoufre.App.UI
             foreach (var entry in _scrolls)
                 if (entry.Value != null) _scrollMemory[entry.Key] = entry.Value.normalizedPosition;
             _scrolls.Clear();
+
+            // Les points de départ et d'arrivée des cartes volantes sont reposés à chaque reconstruction.
+            _seatAnchors.Clear();
+            _humanCardAnchors.Clear();
+            _discardAnchor = _drawAnchor = _handArea = null;
 
             foreach (Transform child in _view)
             {
@@ -395,6 +804,7 @@ namespace CaSentLeSoufre.App.UI
             float bottom = Mathf.Max(area.Bottom + ScreenInset, -halfHeight);
             float top = Mathf.Min(area.Top - ScreenInset, halfHeight);
             var seat = CenteredRect("Seat" + index, (left + right) / 2, (bottom + top) / 2, right - left, top - bottom);
+            _seatAnchors[index] = seat;
             var background = seat.gameObject.AddComponent<Image>();
             background.color = current ? Theme.PanelCurrent : Theme.Panel;
             background.raycastTarget = false;
@@ -412,7 +822,7 @@ namespace CaSentLeSoufre.App.UI
             BuildSeatHeader(column, player, human, area.IsVertical);
 
             var content = BuildScroll(column, "seat" + index, area.IsVertical);
-            BuildStacks(content, player, human, area.IsVertical);
+            if (!_dealing) BuildStacks(content, player, human, area.IsVertical); // masqué pendant la distribution
         }
 
         /// <summary>
@@ -505,8 +915,10 @@ namespace CaSentLeSoufre.App.UI
                         ? StateFor(card, index, swapPhase, myTurn && zone == Zone.FaceUp, jumpCards,
                             zone == Zone.FaceUp, swapTarget: true)
                         : new CardState();
-                    CardFactory.FaceAt(stack, card, cardSize, new Vector2(offset, offset),
+                    var faceUp = CardFactory.FaceAt(stack, card, cardSize, new Vector2(offset, offset),
                         human ? (Action)(() => OnFaceUpClicked(index)) : null, state);
+                    if (human)
+                        _humanCardAnchors.Add(new KeyValuePair<Card, RectTransform>(card, (RectTransform)faceUp.transform));
                 }
             }
         }
@@ -531,7 +943,8 @@ namespace CaSentLeSoufre.App.UI
             // Indication du moment (une ligne réservée, jamais superposée aux autres éléments).
             string hint = string.Empty;
             Color hintColor = Theme.Muted;
-            if (swapPhase) hint = Loc.Get("table.swap_hint");
+            if (_dealing) hint = string.Empty;
+            else if (swapPhase) hint = Loc.Get("table.swap_hint");
             else if (jumpCards.Count > 0)
             {
                 hint = Loc.Get("table.jump_in_hint");
@@ -547,7 +960,11 @@ namespace CaSentLeSoufre.App.UI
             // Boutons d'action.
             var buttons = UiFactory.Row(column, 20, TextAnchor.MiddleCenter);
             UiFactory.Size(buttons, minHeight: 56, preferredHeight: 56);
-            if (swapPhase)
+            if (_dealing)
+            {
+                // Pas de bouton tant que les cartes sont en train d'être distribuées.
+            }
+            else if (swapPhase)
             {
                 UiFactory.MakeButton(buttons, Loc.Get("table.ready"), OnReady, 30, 300, 56, Theme.Accent);
             }
@@ -595,18 +1012,20 @@ namespace CaSentLeSoufre.App.UI
             // Pioche.
             var draw = UiFactory.Column(row, 4, 0, TextAnchor.MiddleCenter);
             UiFactory.Size(draw, minWidth: 130, preferredWidth: 130, flexibleWidth: 0);
-            if (game.DrawPile.Count > 0) CardFactory.Back(draw, PileCard, null, new CardState());
-            else CardFactory.EmptySlot(draw, PileCard);
+            _drawAnchor = game.DrawPile.Count > 0
+                ? (RectTransform)CardFactory.Back(draw, PileCard, null, new CardState()).transform
+                : CardFactory.EmptySlot(draw, PileCard);
             UiFactory.Label(draw, $"{Loc.Get("table.draw_pile")} ({game.DrawPile.Count})", 20, Theme.Muted,
                 FontStyle.Normal, TextAnchor.MiddleCenter);
 
-            // Défausse.
+            // Défausse : celle qui est affichée peut retarder sur la partie le temps que les cartes arrivent.
+            var shown = ShownDiscard();
             var discard = UiFactory.Column(row, 4, 0, TextAnchor.MiddleCenter);
             UiFactory.Size(discard, minWidth: 130, preferredWidth: 130, flexibleWidth: 0);
-            if (game.DiscardPile.Count > 0)
-                CardFactory.Face(discard, game.DiscardPile[game.DiscardPile.Count - 1], PileCard, null, new CardState());
-            else CardFactory.EmptySlot(discard, PileCard);
-            UiFactory.Label(discard, $"{Loc.Get("table.discard_pile")} ({game.DiscardPile.Count})", 20, Theme.Muted,
+            _discardAnchor = shown.Count > 0
+                ? (RectTransform)CardFactory.Face(discard, shown[shown.Count - 1], PileCard, null, new CardState()).transform
+                : CardFactory.EmptySlot(discard, PileCard);
+            UiFactory.Label(discard, $"{Loc.Get("table.discard_pile")} ({shown.Count})", 20, Theme.Muted,
                 FontStyle.Normal, TextAnchor.MiddleCenter);
 
             // Journal des derniers coups.
@@ -652,11 +1071,15 @@ namespace CaSentLeSoufre.App.UI
                 .ThenBy(i => (int)me.Hand[i].Suit)
                 .ToList();
 
+            _handArea = content;
+            if (_dealing) return; // la main apparaît quand les cartes sont arrivées
+
             foreach (int index in order)
             {
                 var card = me.Hand[index];
-                CardFactory.Face(content, card, HandCard, () => OnHandClicked(index),
+                var button = CardFactory.Face(content, card, HandCard, () => OnHandClicked(index),
                     StateFor(card, index, swapPhase, myZone, jumpCards, jumpZone, swapTarget: false));
+                _humanCardAnchors.Add(new KeyValuePair<Card, RectTransform>(card, (RectTransform)button.transform));
             }
         }
 
@@ -859,7 +1282,11 @@ namespace CaSentLeSoufre.App.UI
             _log.Clear();
             _scrollMemory.Clear();
             _session.StartRound();
-            AfterAction();
+            HandleEvents(_session.DrainEvents());
+            StartDeal();
+            Refresh();
+            PlayDealAnimation();
+            SaveProgress();
         }
     }
 }

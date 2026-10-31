@@ -52,6 +52,35 @@ namespace CaSentLeSoufre.Tests
         }
 
         [Test]
+        public void Paused_FreezesTheAiAndTheirReactions_UntilResumed()
+        {
+            var game = Scenario(new RulesConfig(), 1, AiDifficulty.Normal, AiDifficulty.Normal, null,
+                Filler, new[] { C(9, Suit.Hearts), C(13, Suit.Clubs) }, Filler);
+            var session = TableSession.ForGame(game, Steady(), 1);
+
+            session.Paused = true;
+            session.Tick(10f);
+            Assert.AreEqual(0, game.DiscardPile.Count, "Rien ne bouge pendant la pause");
+
+            session.Paused = false;
+            session.Tick(1.9f);
+            Assert.AreEqual(0, game.DiscardPile.Count, "Le temps perdu pendant la pause ne compte pas");
+            session.Tick(0.2f);
+            Assert.AreEqual(1, game.DiscardPile.Count);
+        }
+
+        [Test]
+        public void Paused_StillLetsThePlayerAct()
+        {
+            var game = Scenario(new RulesConfig(), 0, AiDifficulty.Normal, AiDifficulty.Normal, null,
+                new[] { C(5), C(13) }, Filler, Filler);
+            var session = TableSession.ForGame(game, Steady(), 1);
+
+            session.Paused = true;
+            Assert.IsTrue(session.HumanPlay(new[] { C(5) }).Ok);
+        }
+
+        [Test]
         public void HardAi_IsFasterThanEasyAi()
         {
             var hard = Scenario(new RulesConfig(), 1, AiDifficulty.Hard, AiDifficulty.Hard, null,

@@ -590,6 +590,14 @@ MonoBehaviour:
     m_Localized: Confirmer l'abandon
     m_Metadata:
       m_Items: []
+  - m_Id: 56796314763264
+    m_Localized: Jeu complet !
+    m_Metadata:
+      m_Items: []
+  - m_Id: 56796373483520
+    m_Localized: "\xC0 la vol\xE9e !"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

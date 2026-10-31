@@ -135,3 +135,5 @@ menu.saved.resume,Reprendre la partie,Resume the game
 menu.replace_confirm,Remplacer la partie en cours ?,Replace the game in progress?
 table.save_quit,Sauvegarder et quitter,Save and quit
 table.confirm_abandon,Confirmer l'abandon,Confirm abandon
+table.fx.full_set,Jeu complet !,Complete set!
+table.fx.jump_in,À la volée !,Jump-in!

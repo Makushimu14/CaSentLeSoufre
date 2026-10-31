@@ -92,6 +92,12 @@ namespace CaSentLeSoufre.Core
         public Match Match => _match;
         public Game Game => _game;
 
+        /// <summary>
+        /// Gèle le temps de la session (les IA n'avancent pas, aucune réaction à la volée) : l'interface s'en sert
+        /// pendant l'animation de distribution. Les actions du joueur restent possibles.
+        /// </summary>
+        public bool Paused { get; set; }
+
         /// <summary>Vrai tant qu'aucune manche n'est en cours (avant la première, ou une fois la manche enregistrée).</summary>
         public bool RoundOver { get; private set; } = true;
 
@@ -202,7 +208,7 @@ namespace CaSentLeSoufre.Core
         /// <summary>Fait avancer le temps de <paramref name="dt"/> secondes : les IA réagissent et jouent.</summary>
         public void Tick(float dt)
         {
-            if (_game == null || RoundOver || _game.Phase != GamePhase.Play) return;
+            if (Paused || _game == null || RoundOver || _game.Phase != GamePhase.Play) return;
 
             // Jeu à la volée des IA : chacune a décidé à l'avance, avec son temps de réaction.
             for (int i = 0; i < _reactionCards.Length; i++)

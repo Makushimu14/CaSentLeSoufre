@@ -587,6 +587,14 @@ MonoBehaviour:
     m_Key: table.confirm_abandon
     m_Metadata:
       m_Items: []
+  - m_Id: 56796314763264
+    m_Key: table.fx.full_set
+    m_Metadata:
+      m_Items: []
+  - m_Id: 56796373483520
+    m_Key: table.fx.jump_in
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

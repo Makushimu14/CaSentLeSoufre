@@ -43,7 +43,7 @@ namespace CaSentLeSoufre.Tests
             "table.log.finished", "table.log.stalemate", "table.round_over", "table.match_over",
             "table.finish_order", "table.last", "table.standings", "table.standing_row", "table.winner",
             "table.next_round", "table.back_to_menu", "menu.saved.title", "menu.saved.summary",
-            "menu.saved.resume", "menu.replace_confirm", "table.save_quit", "table.confirm_abandon",
+            "menu.saved.resume", "menu.replace_confirm", "table.save_quit", "table.confirm_abandon", "table.fx.full_set", "table.fx.jump_in",
             "menu.stats", "stats.filter.all", "stats.group.rounds", "stats.group.matches", "stats.col.player",
             "stats.col.played", "stats.col.wins", "stats.col.losses", "stats.human", "stats.ai", "stats.empty",
             "stats.hint", "stats.empty_rounds", "stats.empty_matches",
