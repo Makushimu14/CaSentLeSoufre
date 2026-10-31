@@ -1,3 +1,4 @@
 ﻿<Solution>
-  <Project Path="Unity.2D.Welcome.csproj" />
+  <Project Path="CaSentLeSoufre.Core.csproj" />
+  <Project Path="CaSentLeSoufre.Tests.EditMode.csproj" />
 </Solution>
