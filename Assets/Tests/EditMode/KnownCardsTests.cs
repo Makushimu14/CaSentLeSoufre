@@ -164,7 +164,8 @@ namespace CaSentLeSoufre.Tests
             Assert.IsTrue(game.CanPlayRankOn(5, 6));
             Assert.IsFalse(game.CanPlayRankOn(9, 6));
             Assert.IsTrue(game.CanPlayRankOn(9, 2), "Le 2 est la carte la plus forte");
-            Assert.IsTrue(game.CanPlayRankOn(Card.Ace, 10), "La brûlure est jouable partout");
+            Assert.IsFalse(game.CanPlayRankOn(Card.Ace, 10), "La brûlure suit sa valeur : un 10 ne bat pas un as");
+            Assert.IsTrue(game.CanPlayRankOn(9, 10));
         }
 
         // ---------------------------------------------------------------- IA difficile : contrer sans tricher

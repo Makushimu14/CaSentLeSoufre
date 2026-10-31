@@ -169,7 +169,12 @@ namespace CaSentLeSoufre.App.UI
             colors.selectedColor = Color.white;
             colors.disabledColor = new Color(0.55f, 0.55f, 0.55f, 0.7f);
             button.colors = colors;
-            if (onClick != null) button.onClick.AddListener(() => onClick());
+            if (onClick != null)
+                button.onClick.AddListener(() =>
+                {
+                    AudioManager.Play(Sound.Click);
+                    onClick();
+                });
 
             var textRect = NewRect("Text", rect);
             Stretch(textRect, 10, 4, 10, 4);
@@ -193,6 +198,55 @@ namespace CaSentLeSoufre.App.UI
                 Size(button, minWidth: 110, flexibleWidth: 1);
             }
             return row;
+        }
+
+        // ---------------------------------------------------------------- Curseur
+
+        /// <summary>Curseur horizontal de 0 à 1 (barre sombre, remplissage rouge, poignée claire).</summary>
+        public static Slider MakeSlider(Transform parent, float value, Action<float> onChanged, float height = 44f)
+        {
+            var root = NewRect("Slider", parent);
+            Size(root, minWidth: 260, preferredWidth: 420, minHeight: height, preferredHeight: height, flexibleWidth: 1);
+
+            // Piste : une barre fine au milieu de la hauteur.
+            var track = NewRect("Background", root);
+            track.anchorMin = new Vector2(0, 0.5f);
+            track.anchorMax = new Vector2(1, 0.5f);
+            track.sizeDelta = new Vector2(0, 12);
+            var trackImage = track.gameObject.AddComponent<Image>();
+            trackImage.color = Theme.Disabled;
+
+            var fillArea = NewRect("Fill Area", root);
+            fillArea.anchorMin = new Vector2(0, 0.5f);
+            fillArea.anchorMax = new Vector2(1, 0.5f);
+            fillArea.sizeDelta = new Vector2(-26, 12);
+            var fill = NewRect("Fill", fillArea);
+            // Le Slider ne règle que les ancres horizontales : sans cela le remplissage garde 100 px de large et de haut.
+            fill.anchorMin = new Vector2(0, 0);
+            fill.anchorMax = new Vector2(0, 1);
+            fill.sizeDelta = new Vector2(10, 0);
+            fill.gameObject.AddComponent<Image>().color = Theme.Accent;
+
+            var handleArea = NewRect("Handle Slide Area", root);
+            Stretch(handleArea, 13, 0, 13, 0);
+            var handle = NewRect("Handle", handleArea);
+            handle.anchorMin = new Vector2(0, 0);
+            handle.anchorMax = new Vector2(0, 1);
+            handle.sizeDelta = new Vector2(26, 0);
+            var handleImage = handle.gameObject.AddComponent<Image>();
+            handleImage.color = Theme.Text;
+
+            var slider = root.gameObject.AddComponent<Slider>();
+            slider.fillRect = fill;
+            slider.handleRect = handle;
+            slider.targetGraphic = handleImage;
+            slider.direction = Slider.Direction.LeftToRight;
+            slider.minValue = 0f;
+            slider.maxValue = 1f;
+            slider.wholeNumbers = false;
+            slider.value = Mathf.Clamp01(value);
+            if (onChanged != null) slider.onValueChanged.AddListener(v => onChanged(v));
+            return slider;
         }
 
         // ---------------------------------------------------------------- Champ de saisie

@@ -309,6 +309,39 @@ namespace CaSentLeSoufre.Tests
         }
 
         [Test]
+        public void Volumes_HaveDefaults_AreClamped_AndAreSavedWithThePreferences()
+        {
+            var model = new MatchSetupModel();
+            Assert.AreEqual(MatchSetupModel.DefaultMusicVolume, model.MusicVolume);
+            Assert.AreEqual(MatchSetupModel.DefaultEffectsVolume, model.EffectsVolume);
+
+            model.SetMusicVolume(2.5f);
+            model.SetEffectsVolume(-1f);
+            Assert.AreEqual(1f, model.MusicVolume);
+            Assert.AreEqual(0f, model.EffectsVolume);
+
+            model.SetMusicVolume(0.3f);
+            model.SetEffectsVolume(0.65f);
+            var restored = MatchSetupModel.FromPreferences(model.ToPreferences());
+            Assert.AreEqual(0.3f, restored.MusicVolume, 1e-6f);
+            Assert.AreEqual(0.65f, restored.EffectsVolume, 1e-6f);
+        }
+
+        [Test]
+        public void Volumes_AbsurdValues_FallBackToDefaults_AndOldFilesKeepTheDefaults()
+        {
+            var prefs = new SetupPreferences { MusicVolume = float.NaN, EffectsVolume = float.PositiveInfinity };
+            var model = MatchSetupModel.FromPreferences(prefs);
+            Assert.AreEqual(MatchSetupModel.DefaultMusicVolume, model.MusicVolume);
+            Assert.AreEqual(MatchSetupModel.DefaultEffectsVolume, model.EffectsVolume);
+
+            // Un fichier d'avant le son n'a pas ces champs : les valeurs d'origine de la classe s'appliquent.
+            var untouched = MatchSetupModel.FromPreferences(new SetupPreferences());
+            Assert.AreEqual(MatchSetupModel.DefaultMusicVolume, untouched.MusicVolume);
+            Assert.AreEqual(MatchSetupModel.DefaultEffectsVolume, untouched.EffectsVolume);
+        }
+
+        [Test]
         public void Preferences_NullOrEmpty_FallBackToDefaults()
         {
             var fromNull = MatchSetupModel.FromPreferences(null, "Vous");

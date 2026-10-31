@@ -37,6 +37,24 @@ namespace CaSentLeSoufre.Core
         /// <summary>Code de langue mémorisé avec les préférences (vide tant que rien n'est choisi).</summary>
         public string Language { get; set; } = string.Empty;
 
+        // ---------------------------------------------------------------- Son
+
+        public const float DefaultMusicVolume = 0.5f;
+        public const float DefaultEffectsVolume = 0.8f;
+
+        public float MusicVolume { get; private set; } = DefaultMusicVolume;
+        public float EffectsVolume { get; private set; } = DefaultEffectsVolume;
+
+        public void SetMusicVolume(float volume) => MusicVolume = SanitizeVolume(volume, DefaultMusicVolume);
+        public void SetEffectsVolume(float volume) => EffectsVolume = SanitizeVolume(volume, DefaultEffectsVolume);
+
+        /// <summary>Ramène un volume entre 0 et 1 ; une valeur absurde (non numérique) donne la valeur par défaut.</summary>
+        public static float SanitizeVolume(float volume, float fallback)
+        {
+            if (float.IsNaN(volume) || float.IsInfinity(volume)) return fallback;
+            return Math.Max(0f, Math.Min(1f, volume));
+        }
+
         // ---------------------------------------------------------------- Mode et nombre de joueurs
 
         public GameMode Mode => _rules.Mode;
@@ -224,7 +242,9 @@ namespace CaSentLeSoufre.Core
                 HasPowers = true,
                 FourOfAKindBurns = FourOfAKindBurns,
                 JumpIn = JumpIn,
-                AllowInitialSwap = AllowInitialSwap
+                AllowInitialSwap = AllowInitialSwap,
+                MusicVolume = MusicVolume,
+                EffectsVolume = EffectsVolume
             };
             foreach (var ai in _roster)
                 prefs.Roster.Add(new AiPreference { Name = ai.Name, Difficulty = (int)ai.Difficulty });
@@ -268,6 +288,8 @@ namespace CaSentLeSoufre.Core
             model._rules.FourOfAKindBurns = prefs.FourOfAKindBurns;
             model._rules.JumpIn = prefs.JumpIn;
             model._rules.AllowInitialSwap = prefs.AllowInitialSwap;
+            model.SetMusicVolume(prefs.MusicVolume);
+            model.SetEffectsVolume(prefs.EffectsVolume);
 
             if (prefs.HasPowers)
             {

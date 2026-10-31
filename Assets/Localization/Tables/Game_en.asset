@@ -75,7 +75,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1143635978
-    m_Localized: Playable on anything. Burns the discard pile and you play again.
+    m_Localized: Burns the discard pile and you play again. Played like an ordinary card, by its value.
     m_Metadata:
       m_Items: []
   - m_Id: 1143635979
@@ -83,7 +83,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1143635980
-    m_Localized: Playable on anything. The next player must beat the card underneath.
+    m_Localized: Played by its value. The next player must beat the card underneath.
     m_Metadata:
       m_Items: []
   - m_Id: 1143635981
@@ -596,6 +596,42 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 56796373483520
     m_Localized: Jump-in!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 59079555448832
+    m_Localized: Sound
+    m_Metadata:
+      m_Items: []
+  - m_Id: 59079622557696
+    m_Localized: Music
+    m_Metadata:
+      m_Items: []
+  - m_Id: 59079622557697
+    m_Localized: Effects
+    m_Metadata:
+      m_Items: []
+  - m_Id: 59079622557698
+    m_Localized: Pause
+    m_Metadata:
+      m_Items: []
+  - m_Id: 59079622557699
+    m_Localized: Pause
+    m_Metadata:
+      m_Items: []
+  - m_Id: 59079622557700
+    m_Localized: Resume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 59079622557701
+    m_Localized: Save and return to menu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 59079622557702
+    m_Localized: Save and quit the game
+    m_Metadata:
+      m_Items: []
+  - m_Id: 59079622557703
+    m_Localized: Press Esc to close this menu.
     m_Metadata:
       m_Items: []
   references:

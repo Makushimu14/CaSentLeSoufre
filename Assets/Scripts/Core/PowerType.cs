@@ -6,10 +6,10 @@ namespace CaSentLeSoufre.Core
         /// <summary>Remise à zéro : jouable sur tout, et on peut jouer n'importe quoi dessus (le 2).</summary>
         Reset,
 
-        /// <summary>Brûle la défausse ; le joueur rejoue. Jouable sur tout (le 10).</summary>
+        /// <summary>Brûle la défausse ; le joueur rejoue (le 10). Se pose comme une carte ordinaire, selon sa valeur.</summary>
         Burn,
 
-        /// <summary>Transparent : jouable sur tout, le suivant doit battre la carte située dessous (le 3).</summary>
+        /// <summary>Transparent : la carte la plus faible (le 3), le suivant doit battre la carte située dessous (le 3).</summary>
         Transparent,
 
         /// <summary>Le joueur suivant doit jouer une valeur inférieure ou égale (le 7).</summary>
@@ -75,9 +75,12 @@ namespace CaSentLeSoufre.Core
             }
         }
 
-        /// <summary>Jouable sur n'importe quelle défausse.</summary>
-        public static bool IsAlwaysPlayable(PowerType power) =>
-            power == PowerType.Reset || power == PowerType.Burn || power == PowerType.Transparent;
+        /// <summary>
+        /// Pouvoirs dont la carte se pose sur n'importe quelle défausse : seule la remise à zéro (le 2).
+        /// Les autres suivent la valeur de leur carte comme une carte ordinaire (un 10 ne bat pas un valet,
+        /// un 3 transparent ne se pose que sur un 3 ou une défausse vide).
+        /// </summary>
+        public static bool IsAlwaysPlayable(PowerType power) => power == PowerType.Reset;
 
         /// <summary>Clé de traduction du nom du pouvoir, par exemple « power.Reset.label ».</summary>
         public static string LabelKey(PowerType power) => "power." + power + ".label";

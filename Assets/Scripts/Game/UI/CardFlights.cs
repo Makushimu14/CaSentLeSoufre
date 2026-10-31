@@ -32,6 +32,9 @@ namespace CaSentLeSoufre.App.UI
             /// <summary>Hauteur de l'arc de la trajectoire (négatif : arc vers le bas).</summary>
             public float Arc;
 
+            /// <summary>Appelé au départ du vol (après son délai).</summary>
+            public Action OnStart;
+
             public Action OnLand;
         }
 
@@ -134,6 +137,7 @@ namespace CaSentLeSoufre.App.UI
                 {
                     flight.Started = true;
                     flight.Root.gameObject.SetActive(true);
+                    flight.Spec.OnStart?.Invoke();
                 }
 
                 float t = Mathf.Clamp01(flight.Elapsed / Mathf.Max(0.01f, flight.Spec.Duration));

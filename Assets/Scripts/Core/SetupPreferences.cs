@@ -31,6 +31,12 @@ namespace CaSentLeSoufre.Core
         public bool FourOfAKindBurns = true;
         public bool JumpIn;
         public bool AllowInitialSwap = true;
+
+        /// <summary>Volume de la musique d'ambiance (0 à 1).</summary>
+        public float MusicVolume = 0.5f;
+
+        /// <summary>Volume des effets sonores (0 à 1).</summary>
+        public float EffectsVolume = 0.8f;
     }
 
     [Serializable]

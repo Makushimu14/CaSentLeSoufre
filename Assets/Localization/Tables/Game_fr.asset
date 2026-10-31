@@ -75,7 +75,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1143635978
-    m_Localized: "Jouable sur tout. Br\xFBle la d\xE9fausse et vous rejouez."
+    m_Localized: "Br\xFBle la d\xE9fausse et vous rejouez. Se pose comme une carte ordinaire, selon sa valeur."
     m_Metadata:
       m_Items: []
   - m_Id: 1143635979
@@ -83,7 +83,7 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1143635980
-    m_Localized: "Jouable sur tout. Le suivant doit battre la carte situ\xE9e dessous."
+    m_Localized: "Se pose selon sa valeur. Le suivant doit battre la carte situ\xE9e dessous."
     m_Metadata:
       m_Items: []
   - m_Id: 1143635981
@@ -596,6 +596,42 @@ MonoBehaviour:
       m_Items: []
   - m_Id: 56796373483520
     m_Localized: "\xC0 la vol\xE9e !"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 59079555448832
+    m_Localized: Son
+    m_Metadata:
+      m_Items: []
+  - m_Id: 59079622557696
+    m_Localized: Musique
+    m_Metadata:
+      m_Items: []
+  - m_Id: 59079622557697
+    m_Localized: Effets
+    m_Metadata:
+      m_Items: []
+  - m_Id: 59079622557698
+    m_Localized: Pause
+    m_Metadata:
+      m_Items: []
+  - m_Id: 59079622557699
+    m_Localized: Pause
+    m_Metadata:
+      m_Items: []
+  - m_Id: 59079622557700
+    m_Localized: Reprendre
+    m_Metadata:
+      m_Items: []
+  - m_Id: 59079622557701
+    m_Localized: Sauvegarder et retourner au menu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 59079622557702
+    m_Localized: Sauvegarder et quitter le jeu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 59079622557703
+    m_Localized: "Appuyez sur \xC9chap pour fermer ce menu."
     m_Metadata:
       m_Items: []
   references:

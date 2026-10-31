@@ -595,6 +595,42 @@ MonoBehaviour:
     m_Key: table.fx.jump_in
     m_Metadata:
       m_Items: []
+  - m_Id: 59079555448832
+    m_Key: menu.section.audio
+    m_Metadata:
+      m_Items: []
+  - m_Id: 59079622557696
+    m_Key: menu.audio.music
+    m_Metadata:
+      m_Items: []
+  - m_Id: 59079622557697
+    m_Key: menu.audio.effects
+    m_Metadata:
+      m_Items: []
+  - m_Id: 59079622557698
+    m_Key: table.pause
+    m_Metadata:
+      m_Items: []
+  - m_Id: 59079622557699
+    m_Key: pause.title
+    m_Metadata:
+      m_Items: []
+  - m_Id: 59079622557700
+    m_Key: pause.resume
+    m_Metadata:
+      m_Items: []
+  - m_Id: 59079622557701
+    m_Key: pause.to_menu
+    m_Metadata:
+      m_Items: []
+  - m_Id: 59079622557702
+    m_Key: pause.quit_game
+    m_Metadata:
+      m_Items: []
+  - m_Id: 59079622557703
+    m_Key: pause.hint
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

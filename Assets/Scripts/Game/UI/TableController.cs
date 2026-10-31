@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CaSentLeSoufre.Core;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace CaSentLeSoufre.App.UI
@@ -43,6 +44,10 @@ namespace CaSentLeSoufre.App.UI
         // Une partie abandonnée (ou finie) ne doit plus être enregistrée, même si le jeu se ferme ensuite.
         private bool _saveDisabled;
         private float _abandonConfirmUntil;
+
+        // Menu pause : le temps de la partie et les animations sont gelés tant qu'il est ouvert.
+        private bool _paused;
+        private bool _wasHumanTurn;
 
         // Animations : cartes volantes par-dessus la table, et défausse affichée qui peut retarder sur la partie
         // le temps que les cartes arrivent (elle se recale toujours dès que plus rien ne vole).
@@ -142,7 +147,10 @@ namespace CaSentLeSoufre.App.UI
         {
             if (_session == null) return;
 
-            if (!_session.RoundOver) _session.Tick(Time.deltaTime);
+            // Échap ouvre ou ferme le menu pause (pas pendant l'écran des résultats, qui a ses propres boutons).
+            var keyboard = Keyboard.current;
+            if (keyboard != null && keyboard.escapeKey.wasPressedThisFrame && !_session.RoundOver)
+                SetPaused(!_paused);
 
             // La confirmation d'abandon s'efface d'elle-même au bout de quelques secondes.
             if (_abandonConfirmUntil > 0f && Time.unscaledTime >= _abandonConfirmUntil)
@@ -150,6 +158,16 @@ namespace CaSentLeSoufre.App.UI
                 _abandonConfirmUntil = 0f;
                 Refresh();
             }
+
+            // En pause, plus rien ne bouge : ni la partie, ni les cartes en vol, ni les effets.
+            if (_paused) return;
+
+            if (!_session.RoundOver) _session.Tick(Time.deltaTime);
+
+            // Un petit « ping » quand la main passe au joueur (pas quand il rejoue après une brûlure).
+            bool humanTurn = _session.IsHumanTurn && !_dealing;
+            if (humanTurn && !_wasHumanTurn) AudioManager.Play(Sound.YourTurn, 0.7f);
+            _wasHumanTurn = humanTurn;
 
             // Les événements sont traités avant tout rafraîchissement : les cartes volantes ont besoin de l'ancien
             // état de la table (positions des cartes, défausse affichée) pour partir du bon endroit.
@@ -196,7 +214,32 @@ namespace CaSentLeSoufre.App.UI
         {
             SaveProgress();
             _saveDisabled = true;
+            AudioManager.Persist();
             Exit();
+        }
+
+        /// <summary>Enregistre la partie et ferme le jeu.</summary>
+        private void SaveAndQuitGame()
+        {
+            SaveProgress();
+            _saveDisabled = true;
+            AudioManager.Persist();
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
+            Application.Quit();
+#endif
+        }
+
+        private void SetPaused(bool paused)
+        {
+            _paused = paused;
+            _abandonConfirmUntil = 0f;
+            if (_session != null) _session.Paused = _paused || _dealing;
+
+            // Les volumes changés dans le menu pause sont enregistrés quand on le referme.
+            if (!paused) AudioManager.Persist();
+            Refresh();
         }
 
         /// <summary>Demande une confirmation avant d'abandonner (un second clic dans les 4 secondes).</summary>
@@ -216,7 +259,65 @@ namespace CaSentLeSoufre.App.UI
         {
             _saveDisabled = true;
             GameSaveStorage.Delete();
+            AudioManager.Persist();
             Exit();
+        }
+
+        // ---------------------------------------------------------------- Menu pause
+
+        private void BuildPauseOverlay()
+        {
+            var overlay = UiFactory.NewRect("PauseOverlay", _view);
+            UiFactory.Stretch(overlay);
+            overlay.gameObject.AddComponent<Image>().color = new Color(0, 0, 0, 0.78f); // bloque aussi les clics
+
+            var host = UiFactory.NewRect("PanelHost", overlay);
+            UiFactory.Stretch(host);
+            var centering = host.gameObject.AddComponent<VerticalLayoutGroup>();
+            centering.childAlignment = TextAnchor.MiddleCenter;
+            centering.childControlWidth = true;
+            centering.childControlHeight = true;
+            centering.childForceExpandWidth = false;
+            centering.childForceExpandHeight = false;
+
+            var panel = UiFactory.Card(host, Theme.Panel, 36, 14);
+            UiFactory.Size(panel, preferredWidth: 760, flexibleWidth: 0);
+
+            UiFactory.Label(panel, Loc.Get("pause.title"), 48, Theme.Accent, FontStyle.Bold, TextAnchor.MiddleCenter);
+            UiFactory.MakeButton(panel, Loc.Get("pause.resume"), () => SetPaused(false), 30, 0, 64, Theme.Accent);
+
+            // Le son, réglable sans quitter la partie.
+            AddPauseVolume(panel, "menu.audio.music", AudioManager.MusicVolume,
+                v => AudioManager.SetVolumes(v, AudioManager.EffectsVolume));
+            AddPauseVolume(panel, "menu.audio.effects", AudioManager.EffectsVolume,
+                v => AudioManager.SetVolumes(AudioManager.MusicVolume, v));
+
+            UiFactory.MakeButton(panel, Loc.Get("pause.to_menu"), SaveAndQuit, 26, 0, 58);
+            UiFactory.MakeButton(panel, Loc.Get("pause.quit_game"), SaveAndQuitGame, 26, 0, 58);
+
+            bool confirming = Time.unscaledTime < _abandonConfirmUntil;
+            UiFactory.MakeButton(panel, Loc.Get(confirming ? "table.confirm_abandon" : "table.quit"), OnAbandonClicked,
+                26, 0, 58, confirming ? Theme.Accent : Theme.PanelLight);
+
+            UiFactory.Label(panel, Loc.Get("pause.hint"), 20, Theme.Muted, FontStyle.Italic, TextAnchor.MiddleCenter);
+        }
+
+        private static void AddPauseVolume(Transform parent, string labelKey, float value, Action<float> apply)
+        {
+            var row = UiFactory.Row(parent, 16);
+            var label = UiFactory.Label(row, Loc.Get(labelKey), 24, Theme.Text);
+            UiFactory.Size(label, minWidth: 150, preferredWidth: 150, flexibleWidth: 0);
+
+            Text percent = null;
+            UiFactory.MakeSlider(row, value, volume =>
+            {
+                apply(volume);
+                if (percent != null) percent.text = Mathf.RoundToInt(volume * 100f) + "%";
+            });
+
+            percent = UiFactory.Label(row, Mathf.RoundToInt(value * 100f) + "%", 24, Theme.Accent, FontStyle.Bold,
+                TextAnchor.MiddleRight);
+            UiFactory.Size(percent, minWidth: 80, preferredWidth: 80, flexibleWidth: 0);
         }
 
         // ---------------------------------------------------------------- Mise en place
@@ -320,6 +421,7 @@ namespace CaSentLeSoufre.App.UI
                         break;
 
                     case TableEventKind.RoundFinished:
+                        PlayRoundEndSound();
                         if (_session.Game.IsStalemate) AddLog(Loc.Get("table.log.stalemate"));
                         StatsStorage.Save(_stats);
                         break;
@@ -395,6 +497,7 @@ namespace CaSentLeSoufre.App.UI
                 case TableEventKind.JumpedIn:
                     if (e.Kind == TableEventKind.JumpedIn && _effects != null)
                     {
+                        AudioManager.Play(Sound.JumpIn);
                         var seat = SeatPoint(player);
                         if (seat.HasValue)
                             _effects.Banner(Loc.Get("table.fx.jump_in"), seat.Value + new Vector3(0, 40, 0), new Color(1f, 0.82f, 0.25f));
@@ -444,8 +547,10 @@ namespace CaSentLeSoufre.App.UI
                     StartScale = player == TableSession.HumanIndex ? 1f : 0.7f,
                     EndScale = 1f,
                     Arc = 26f,
+                    OnStart = () => AudioManager.Play(Sound.CardSlide, 0.6f, RandomPitch()),
                     OnLand = () =>
                     {
+                        AudioManager.Play(Sound.CardPlace, 0.9f, RandomPitch());
                         _visualDiscard.Add(card);
                         _needsRefresh = true;
                         if (last) AfterLanding(player, result, pickUpAfter);
@@ -514,7 +619,8 @@ namespace CaSentLeSoufre.App.UI
                         Duration = 0.35f,
                         StartScale = 1f,
                         EndScale = player == TableSession.HumanIndex ? 1f : 0.6f,
-                        Arc = 14f
+                        Arc = 14f,
+                        OnStart = () => AudioManager.Play(Sound.CardDeal, 0.5f, RandomPitch())
                     });
                     sent++;
                 }
@@ -526,7 +632,7 @@ namespace CaSentLeSoufre.App.UI
         private void FinishDeal()
         {
             _dealing = false;
-            _session.Paused = false;
+            _session.Paused = _paused;
             _needsRefresh = true;
         }
 
@@ -565,6 +671,9 @@ namespace CaSentLeSoufre.App.UI
             {
                 var power = result.Power.Value;
                 var color = PowerColor(power);
+
+                // Une hauteur de note propre à chaque pouvoir : on les reconnaît à l'oreille.
+                if (power != PowerType.Burn) AudioManager.Play(Sound.Power, 0.9f, 0.82f + 0.06f * (int)power);
                 _effects.Banner(Loc.Get(PowerCatalog.LabelKey(power)), pile + new Vector3(0, 120, 0), color);
 
                 switch (power)
@@ -599,6 +708,17 @@ namespace CaSentLeSoufre.App.UI
             }
         }
 
+        private static float RandomPitch() => UnityEngine.Random.Range(0.94f, 1.06f);
+
+        /// <summary>Fin de manche : fanfare si tu sors le premier, thème grave si tu es le Shithead, sinon deux notes neutres.</summary>
+        private void PlayRoundEndSound()
+        {
+            var game = _session.Game;
+            bool first = game.FinishOrder.Count > 0 && game.FinishOrder[0] == TableSession.HumanIndex;
+            bool last = game.LoserIndex.HasValue && game.LoserIndex.Value == TableSession.HumanIndex;
+            AudioManager.Play(first ? Sound.Win : last ? Sound.Lose : Sound.RoundEnd);
+        }
+
         private void PulseAtSeat(int player, Color color)
         {
             var at = SeatPoint(player);
@@ -624,6 +744,7 @@ namespace CaSentLeSoufre.App.UI
         {
             if (_visualDiscard.Count == 0 || _discardAnchor == null) return;
 
+            AudioManager.Play(Sound.Burn);
             var top = _visualDiscard[_visualDiscard.Count - 1];
             _flights.Burn(top, _flights.ToLayer(_discardAnchor), PileCard, () =>
             {
@@ -659,7 +780,8 @@ namespace CaSentLeSoufre.App.UI
                     Duration = 0.42f,
                     StartScale = 1f,
                     EndScale = player == TableSession.HumanIndex ? 1f : 0.6f,
-                    Arc = -18f
+                    Arc = -18f,
+                    OnStart = i == 0 ? (Action)(() => AudioManager.Play(Sound.PickUp, 0.9f)) : null
                 });
             }
         }
@@ -686,7 +808,8 @@ namespace CaSentLeSoufre.App.UI
                     Duration = 0.35f,
                     StartScale = 1f,
                     EndScale = player == TableSession.HumanIndex ? 1f : 0.6f,
-                    Arc = 18f
+                    Arc = 18f,
+                    OnStart = () => AudioManager.Play(Sound.CardDeal, 0.6f, RandomPitch())
                 });
             }
         }
@@ -715,6 +838,7 @@ namespace CaSentLeSoufre.App.UI
             for (int i = 0; i < seats.Length; i++) BuildSeat(i, seats[i]);
             BuildCenter();
             if (_session.RoundOver) BuildRoundOverlay();
+            if (_paused) BuildPauseOverlay();
 
             // Une fois la mise en page calculée, on remet les zones défilantes là où elles étaient.
             Canvas.ForceUpdateCanvases();
@@ -1000,14 +1124,9 @@ namespace CaSentLeSoufre.App.UI
             UiFactory.Label(info, Loc.Get("table.burned", game.BurnedCount), 22, Theme.Muted);
             if (game.Direction < 0)
                 UiFactory.Label(info, Loc.Get("table.direction_reversed"), 22, Theme.Accent, FontStyle.Bold);
-            // Deux sorties : on garde la partie pour la reprendre plus tard, ou on l'abandonne (avec confirmation).
-            var exits = UiFactory.Row(info, 10);
-            UiFactory.MakeButton(exits, Loc.Get("table.save_quit"), SaveAndQuit, 20, 0, 46).GetComponent<LayoutElement>()
-                .flexibleWidth = 1;
-            bool confirming = Time.unscaledTime < _abandonConfirmUntil;
-            var abandon = UiFactory.MakeButton(exits, Loc.Get(confirming ? "table.confirm_abandon" : "table.quit"),
-                OnAbandonClicked, 20, 0, 46, confirming ? Theme.Accent : Theme.PanelLight);
-            abandon.GetComponent<LayoutElement>().flexibleWidth = 1;
+            // Le menu pause regroupe les sorties (menu, quitter le jeu, abandonner) et le son.
+            var pauseRow = UiFactory.Row(info, 10);
+            UiFactory.MakeButton(pauseRow, Loc.Get("table.pause"), () => SetPaused(true), 22, 240, 46);
 
             // Pioche.
             var draw = UiFactory.Column(row, 4, 0, TextAnchor.MiddleCenter);

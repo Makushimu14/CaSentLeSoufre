@@ -192,7 +192,12 @@ namespace CaSentLeSoufre.App.UI
             colors.selectedColor = Color.white;
             colors.disabledColor = Color.white; // l'assombrissement passe par le groupe, pas par le bouton
             button.colors = colors;
-            if (onClick != null) button.onClick.AddListener(() => onClick());
+            if (onClick != null)
+                button.onClick.AddListener(() =>
+                {
+                    AudioManager.Play(Sound.Select);
+                    onClick();
+                });
             return button;
         }
     }

@@ -62,6 +62,9 @@ namespace CaSentLeSoufre.App.UI
             _model.Language = language;
             _saved = GameSaveStorage.LoadValid();
 
+            AudioManager.SetVolumes(_model.MusicVolume, _model.EffectsVolume);
+            AudioManager.StartMusic();
+
             BuildCanvas();
             Rebuild();
         }
@@ -356,6 +359,11 @@ namespace CaSentLeSoufre.App.UI
         {
             GameSession.Clear();
             _saved = GameSaveStorage.LoadValid();
+
+            // Les volumes ont pu être changés depuis le menu pause de la table.
+            _model.SetMusicVolume(AudioManager.MusicVolume);
+            _model.SetEffectsVolume(AudioManager.EffectsVolume);
+
             _canvasObject.SetActive(true);
             _page = Page.Main;
             Rebuild();
@@ -481,6 +489,7 @@ namespace CaSentLeSoufre.App.UI
             BuildOpponentsSection();
             BuildPowersSection();
             BuildOptionsSection();
+            BuildAudioSection();
             BuildLanguageSection();
 
             UiFactory.Label(_column, Loc.Get("menu.autosave"), 22, Theme.Muted, FontStyle.Italic,
@@ -628,6 +637,36 @@ namespace CaSentLeSoufre.App.UI
             UiFactory.Size(text, minWidth: 0, preferredWidth: 100, flexibleWidth: 1);
             UiFactory.Label(text, Loc.Get(keyPrefix + ".label"), 26, Theme.Text, FontStyle.Bold);
             UiFactory.Label(text, Loc.Get(keyPrefix + ".description"), 20, Theme.Muted);
+        }
+
+        private void BuildAudioSection()
+        {
+            var card = UiFactory.Card(_column);
+            UiFactory.Label(card, Loc.Get("menu.section.audio"), 36, Theme.Text, FontStyle.Bold);
+
+            AddVolumeRow(card, "menu.audio.music", _model.MusicVolume, volume => _model.SetMusicVolume(volume));
+            AddVolumeRow(card, "menu.audio.effects", _model.EffectsVolume, volume => _model.SetEffectsVolume(volume));
+        }
+
+        /// <summary>Un curseur de volume : le son change tout de suite, et le choix est enregistré avec les préférences.</summary>
+        private void AddVolumeRow(Transform parent, string labelKey, float value, Action<float> apply)
+        {
+            var row = UiFactory.Row(parent, 16);
+            var label = UiFactory.Label(row, Loc.Get(labelKey), 26, Theme.Text);
+            UiFactory.Size(label, minWidth: 190, preferredWidth: 190, flexibleWidth: 0);
+
+            Text percent = null;
+            UiFactory.MakeSlider(row, value, volume =>
+            {
+                apply(volume);
+                AudioManager.SetVolumes(_model.MusicVolume, _model.EffectsVolume);
+                if (percent != null) percent.text = Mathf.RoundToInt(volume * 100f) + "%";
+                SavePreferences();
+            });
+
+            percent = UiFactory.Label(row, Mathf.RoundToInt(value * 100f) + "%", 26, Theme.Accent, FontStyle.Bold,
+                TextAnchor.MiddleRight);
+            UiFactory.Size(percent, minWidth: 90, preferredWidth: 90, flexibleWidth: 0);
         }
 
         private void BuildLanguageSection()

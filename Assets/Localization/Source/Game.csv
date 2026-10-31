@@ -12,9 +12,9 @@ validation.name_duplicate,Le nom « {0} » est utilisé plusieurs fois.,"The nam
 power.Reset.label,Remise à zéro,Reset
 power.Reset.description,Jouable sur tout. Le suivant peut jouer n'importe quelle carte.,Playable on anything. The next player can play any card.
 power.Burn.label,Brûlure,Burn
-power.Burn.description,Jouable sur tout. Brûle la défausse et vous rejouez.,Playable on anything. Burns the discard pile and you play again.
+power.Burn.description,"Brûle la défausse et vous rejouez. Se pose comme une carte ordinaire, selon sa valeur.","Burns the discard pile and you play again. Played like an ordinary card, by its value."
 power.Transparent.label,Transparent,See-through
-power.Transparent.description,Jouable sur tout. Le suivant doit battre la carte située dessous.,Playable on anything. The next player must beat the card underneath.
+power.Transparent.description,Se pose selon sa valeur. Le suivant doit battre la carte située dessous.,Played by its value. The next player must beat the card underneath.
 power.LowerOrEqual.label,Plus bas,Lower
 power.LowerOrEqual.description,Le suivant doit jouer une carte de valeur inférieure ou égale.,The next player must play a card of equal or lower value.
 power.Skip.label,Saute un tour,Skip
@@ -137,3 +137,12 @@ table.save_quit,Sauvegarder et quitter,Save and quit
 table.confirm_abandon,Confirmer l'abandon,Confirm abandon
 table.fx.full_set,Jeu complet !,Complete set!
 table.fx.jump_in,À la volée !,Jump-in!
+menu.section.audio,Son,Sound
+menu.audio.music,Musique,Music
+menu.audio.effects,Effets,Effects
+table.pause,Pause,Pause
+pause.title,Pause,Pause
+pause.resume,Reprendre,Resume
+pause.to_menu,Sauvegarder et retourner au menu,Save and return to menu
+pause.quit_game,Sauvegarder et quitter le jeu,Save and quit the game
+pause.hint,Appuyez sur Échap pour fermer ce menu.,Press Esc to close this menu.
