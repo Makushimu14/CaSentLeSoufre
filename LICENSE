@@ -1,21 +1,54 @@
-MIT License
+Ça Sent le Soufre
+Copyright (c) 2026 Maxime (Makushimu)
+Tous droits réservés, sauf les permissions ci-dessous. / All rights reserved, except for the permissions below.
 
-Copyright (c) 2026 Maxime
+------------------------------------------------------------------------------
+FRANÇAIS
+------------------------------------------------------------------------------
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Le jeu « Ça Sent le Soufre », son code source, ses illustrations, ses sons et
+les outils qui les génèrent (le « Logiciel ») sont gratuits pour un usage non
+commercial.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+Vous avez le droit, sans payer et sans demander d'autorisation :
+  1. de télécharger le Logiciel et d'y jouer ;
+  2. de le copier et de le partager gratuitement, à condition de conserver
+     cette licence et la mention de copyright ;
+  3. de lire le code source et de le modifier pour votre usage personnel.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+Vous n'avez PAS le droit :
+  1. de vendre le Logiciel, seul ou dans un lot, tel quel ou modifié ;
+  2. de le proposer en échange d'un paiement, d'un abonnement, de publicités
+     ou de tout autre revenu (boutiques d'applications comprises) ;
+  3. de présenter le Logiciel, ou une version modifiée, comme votre œuvre.
+
+Toute autre utilisation, notamment commerciale, nécessite l'accord écrit de
+l'auteur.
+
+LE LOGICIEL EST FOURNI « TEL QUEL », SANS GARANTIE D'AUCUNE SORTE. L'AUTEUR
+N'EST PAS RESPONSABLE DES DOMMAGES DÉCOULANT DE SON UTILISATION.
+
+------------------------------------------------------------------------------
+ENGLISH
+------------------------------------------------------------------------------
+
+The game "Ça Sent le Soufre", its source code, artwork, sounds and the tools
+that generate them (the "Software") are free for non-commercial use.
+
+You may, free of charge and without asking permission:
+  1. download the Software and play it;
+  2. copy and share it for free, provided you keep this license and the
+     copyright notice;
+  3. read the source code and modify it for your own personal use.
+
+You may NOT:
+  1. sell the Software, alone or in a bundle, as is or modified;
+  2. offer it in exchange for payment, a subscription, advertising or any
+     other revenue (including through app stores);
+  3. present the Software, or a modified version, as your own work.
+
+Any other use, in particular commercial use, requires the author's written
+permission.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND. THE AUTHOR IS
+NOT LIABLE FOR ANY DAMAGES ARISING FROM ITS USE.

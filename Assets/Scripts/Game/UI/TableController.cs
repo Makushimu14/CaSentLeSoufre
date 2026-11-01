@@ -1311,7 +1311,7 @@ namespace CaSentLeSoufre.App.UI
         }
 
         /// <summary>
-        /// Flèches (ou ZQSD/WASD) pour viser une carte, Entrée pour la choisir ou la jouer, Espace pour l'action
+        /// Flèches (ou ZQSD en AZERTY, WASD en QWERTY) pour viser une carte, Entrée pour la choisir ou la jouer, Espace pour l'action
         /// principale (jouer la sélection, ramasser, être prêt, jouer à la volée). Le curseur n'apparaît qu'à la
         /// première touche, et disparaît au clic de souris.
         /// </summary>
@@ -1335,10 +1335,14 @@ namespace CaSentLeSoufre.App.UI
             }
 
             int step = 0;
-            if (keyboard.leftArrowKey.wasPressedThisFrame || keyboard.aKey.wasPressedThisFrame) step -= 1;
+            // Les lettres suivent le clavier : ZQSD en AZERTY, WASD en QWERTY. On accepte les deux séries (Q et A,
+            // Z et W), ce qui marche quelle que soit la disposition.
+            if (keyboard.leftArrowKey.wasPressedThisFrame || keyboard.aKey.wasPressedThisFrame
+                || keyboard.qKey.wasPressedThisFrame) step -= 1;
             if (keyboard.rightArrowKey.wasPressedThisFrame || keyboard.dKey.wasPressedThisFrame) step += 1;
             bool vertical = keyboard.upArrowKey.wasPressedThisFrame || keyboard.downArrowKey.wasPressedThisFrame
-                || keyboard.wKey.wasPressedThisFrame || keyboard.sKey.wasPressedThisFrame;
+                || keyboard.wKey.wasPressedThisFrame || keyboard.sKey.wasPressedThisFrame
+                || keyboard.zKey.wasPressedThisFrame;
 
             var game = _session.Game;
             bool swapPhase = game.Phase == GamePhase.Swap;
