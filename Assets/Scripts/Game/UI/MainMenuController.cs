@@ -130,6 +130,27 @@ namespace CaSentLeSoufre.App.UI
             UiFactory.Stretch(background);
             background.gameObject.AddComponent<Image>().color = Theme.Background;
 
+            // Illustration plein écran (Tools/MenuArt), recadrée sans déformation ; absente, on garde l'aplat.
+            var art = Resources.Load<Texture2D>("UI/menu_background");
+            if (art != null)
+            {
+                var picture = UiFactory.NewRect("Illustration", background);
+                UiFactory.Stretch(picture);
+                var raw = picture.gameObject.AddComponent<RawImage>();
+                raw.texture = art;
+                raw.raycastTarget = false;
+                var fitter = picture.gameObject.AddComponent<AspectRatioFitter>();
+                fitter.aspectMode = AspectRatioFitter.AspectMode.EnvelopeParent;
+                fitter.aspectRatio = art.width / (float)art.height;
+
+                // Léger voile pour garder les panneaux lisibles.
+                var veil = UiFactory.NewRect("Veil", background);
+                UiFactory.Stretch(veil);
+                var veilImage = veil.gameObject.AddComponent<Image>();
+                veilImage.color = new Color(0f, 0f, 0f, 0.22f);
+                veilImage.raycastTarget = false;
+            }
+
             var scrollRect = UiFactory.NewRect("Scroll", root);
             UiFactory.Stretch(scrollRect);
             _scroll = scrollRect.gameObject.AddComponent<ScrollRect>();
