@@ -18,6 +18,9 @@ namespace CaSentLeSoufre.App.UI
 
         /// <summary>Carte non jouable en ce moment : assombrie.</summary>
         public bool Dimmed;
+
+        /// <summary>Carte visée par le curseur du clavier : cadre blanc épais.</summary>
+        public bool Focused;
     }
 
     /// <summary>
@@ -173,11 +176,13 @@ namespace CaSentLeSoufre.App.UI
                 graphic = image;
             }
 
-            if (state.Selected || state.Highlight)
+            if (state.Selected || state.Highlight || state.Focused)
             {
                 var outline = card.gameObject.AddComponent<Outline>();
-                outline.effectColor = state.Selected ? Theme.Accent : new Color(1f, 0.82f, 0.25f);
-                outline.effectDistance = new Vector2(4, -4);
+                outline.effectColor = state.Selected ? Theme.Accent
+                    : state.Highlight ? new Color(1f, 0.82f, 0.25f) : Color.white;
+                float distance = state.Focused ? 6f : 4f;
+                outline.effectDistance = new Vector2(distance, -distance);
             }
 
             if (state.Dimmed) card.gameObject.AddComponent<CanvasGroup>().alpha = 0.45f;

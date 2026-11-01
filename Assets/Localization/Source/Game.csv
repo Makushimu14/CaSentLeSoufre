@@ -146,3 +146,4 @@ pause.resume,Reprendre,Resume
 pause.to_menu,Sauvegarder et retourner au menu,Save and return to menu
 pause.quit_game,Sauvegarder et quitter le jeu,Save and quit the game
 pause.hint,Appuyez sur Échap pour fermer ce menu.,Press Esc to close this menu.
+pause.keys,"Au clavier : flèches pour viser, Entrée pour choisir ou jouer, Espace pour l'action principale (jouer, ramasser, prêt, à la volée).","Keyboard: arrows to aim, Enter to pick or play, Space for the main action (play, pick up, ready, jump in)."

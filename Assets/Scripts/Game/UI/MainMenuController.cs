@@ -5,6 +5,7 @@ using System.Linq;
 using CaSentLeSoufre.Core;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
@@ -67,6 +68,23 @@ namespace CaSentLeSoufre.App.UI
 
             BuildCanvas();
             Rebuild();
+        }
+
+        private void Update()
+        {
+            // Au clavier, la première flèche (ou Tab) choisit un premier bouton ; les flèches naviguent ensuite.
+            var keyboard = Keyboard.current;
+            var events = EventSystem.current;
+            if (keyboard == null || events == null || _canvasObject == null || !_canvasObject.activeInHierarchy) return;
+            if (events.currentSelectedGameObject != null) return;
+
+            bool pressed = keyboard.downArrowKey.wasPressedThisFrame || keyboard.upArrowKey.wasPressedThisFrame
+                || keyboard.leftArrowKey.wasPressedThisFrame || keyboard.rightArrowKey.wasPressedThisFrame
+                || keyboard.tabKey.wasPressedThisFrame;
+            if (!pressed || _column == null) return;
+
+            var first = _startButton != null ? (Selectable)_startButton : _column.GetComponentInChildren<Button>();
+            if (first != null) events.SetSelectedGameObject(first.gameObject);
         }
 
         private void OnDisable() => SavePreferences();

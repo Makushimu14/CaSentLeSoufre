@@ -45,7 +45,7 @@ namespace CaSentLeSoufre.Tests
             "table.next_round", "table.back_to_menu", "menu.saved.title", "menu.saved.summary",
             "menu.saved.resume", "menu.replace_confirm", "table.save_quit", "table.confirm_abandon", "table.fx.full_set", "table.fx.jump_in", "menu.section.audio", "menu.audio.music",
             "menu.audio.effects", "table.pause", "pause.title", "pause.resume", "pause.to_menu", "pause.quit_game",
-            "pause.hint",
+            "pause.hint", "pause.keys",
             "menu.stats", "stats.filter.all", "stats.group.rounds", "stats.group.matches", "stats.col.player",
             "stats.col.played", "stats.col.wins", "stats.col.losses", "stats.human", "stats.ai", "stats.empty",
             "stats.hint", "stats.empty_rounds", "stats.empty_matches",

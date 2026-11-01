@@ -631,6 +631,10 @@ MonoBehaviour:
     m_Key: pause.hint
     m_Metadata:
       m_Items: []
+  - m_Id: 271694999224320
+    m_Key: pause.keys
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

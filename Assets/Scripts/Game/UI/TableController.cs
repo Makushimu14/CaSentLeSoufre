@@ -75,6 +75,12 @@ namespace CaSentLeSoufre.App.UI
         private readonly List<int> _selected = new List<int>();
         private int _swapHandIndex = -1;
 
+        // Curseur du clavier : zone visée et position dans l'ordre d'affichage de cette zone.
+        private bool _kbActive;
+        private Zone _kbZone = Zone.Hand;
+        private int _kbPos;
+        private RectTransform _kbFocusRect;
+
         // Les zones défilantes sont reconstruites à chaque rafraîchissement : on retient leur position.
         private readonly Dictionary<string, ScrollRect> _scrolls = new Dictionary<string, ScrollRect>();
         private readonly Dictionary<string, Vector2> _scrollMemory = new Dictionary<string, Vector2>();
@@ -161,6 +167,8 @@ namespace CaSentLeSoufre.App.UI
 
             // En pause, plus rien ne bouge : ni la partie, ni les cartes en vol, ni les effets.
             if (_paused) return;
+
+            HandleKeyboard(keyboard);
 
             if (!_session.RoundOver) _session.Tick(Time.deltaTime);
 
@@ -284,7 +292,10 @@ namespace CaSentLeSoufre.App.UI
             UiFactory.Size(panel, preferredWidth: 760, flexibleWidth: 0);
 
             UiFactory.Label(panel, Loc.Get("pause.title"), 48, Theme.Accent, FontStyle.Bold, TextAnchor.MiddleCenter);
-            UiFactory.MakeButton(panel, Loc.Get("pause.resume"), () => SetPaused(false), 30, 0, 64, Theme.Accent);
+            var resume = UiFactory.MakeButton(panel, Loc.Get("pause.resume"), () => SetPaused(false), 30, 0, 64,
+                Theme.Accent);
+            if (UnityEngine.EventSystems.EventSystem.current != null)
+                UnityEngine.EventSystems.EventSystem.current.SetSelectedGameObject(resume.gameObject);
 
             // Le son, réglable sans quitter la partie.
             AddPauseVolume(panel, "menu.audio.music", AudioManager.MusicVolume,
@@ -300,6 +311,7 @@ namespace CaSentLeSoufre.App.UI
                 26, 0, 58, confirming ? Theme.Accent : Theme.PanelLight);
 
             UiFactory.Label(panel, Loc.Get("pause.hint"), 20, Theme.Muted, FontStyle.Italic, TextAnchor.MiddleCenter);
+            UiFactory.Label(panel, Loc.Get("pause.keys"), 20, Theme.Muted, FontStyle.Normal, TextAnchor.MiddleCenter);
         }
 
         private static void AddPauseVolume(Transform parent, string labelKey, float value, Action<float> apply)
@@ -827,6 +839,8 @@ namespace CaSentLeSoufre.App.UI
             _seatAnchors.Clear();
             _humanCardAnchors.Clear();
             _discardAnchor = _drawAnchor = _handArea = null;
+            _kbFocusRect = null;
+            ClampCursor();
 
             foreach (Transform child in _view)
             {
@@ -844,6 +858,8 @@ namespace CaSentLeSoufre.App.UI
             Canvas.ForceUpdateCanvases();
             foreach (var entry in _scrolls)
                 if (_scrollMemory.TryGetValue(entry.Key, out var position)) entry.Value.normalizedPosition = position;
+
+            ScrollToFocus();
         }
 
         // ---------------------------------------------------------------- Zone défilante
@@ -1028,8 +1044,11 @@ namespace CaSentLeSoufre.App.UI
                 if (index < player.FaceDown.Count)
                 {
                     bool blind = myTurn && zone == Zone.FaceDown;
-                    CardFactory.BackAt(stack, cardSize, Vector2.zero, human ? (Action)(() => OnFaceDownClicked(index)) : null,
-                        new CardState { Interactable = blind, Highlight = blind });
+                    bool focused = human && IsFocused(Zone.FaceDown, index);
+                    var back = CardFactory.BackAt(stack, cardSize, Vector2.zero,
+                        human ? (Action)(() => OnFaceDownClicked(index)) : null,
+                        new CardState { Interactable = blind, Highlight = blind, Focused = focused });
+                    if (focused) _kbFocusRect = (RectTransform)back.transform;
                 }
 
                 if (index < player.FaceUp.Count)
@@ -1039,10 +1058,13 @@ namespace CaSentLeSoufre.App.UI
                         ? StateFor(card, index, swapPhase, myTurn && zone == Zone.FaceUp, jumpCards,
                             zone == Zone.FaceUp, swapTarget: true)
                         : new CardState();
+                    bool focused = human && IsFocused(Zone.FaceUp, index);
+                    state.Focused = focused;
                     var faceUp = CardFactory.FaceAt(stack, card, cardSize, new Vector2(offset, offset),
                         human ? (Action)(() => OnFaceUpClicked(index)) : null, state);
                     if (human)
                         _humanCardAnchors.Add(new KeyValuePair<Card, RectTransform>(card, (RectTransform)faceUp.transform));
+                    if (focused) _kbFocusRect = (RectTransform)faceUp.transform;
                 }
             }
         }
@@ -1185,10 +1207,7 @@ namespace CaSentLeSoufre.App.UI
 
             // Affichage trié par puissance (le 2, le plus fort, à droite), couleur par couleur à égalité.
             // Les clics gardent l'indice réel de la carte dans la main : seul l'ordre d'affichage change.
-            var order = Enumerable.Range(0, me.Hand.Count)
-                .OrderBy(i => Card.Strength(me.Hand[i].Rank))
-                .ThenBy(i => (int)me.Hand[i].Suit)
-                .ToList();
+            var order = SortedHandOrder(me);
 
             _handArea = content;
             if (_dealing) return; // la main apparaît quand les cartes sont arrivées
@@ -1196,8 +1215,10 @@ namespace CaSentLeSoufre.App.UI
             foreach (int index in order)
             {
                 var card = me.Hand[index];
-                var button = CardFactory.Face(content, card, HandCard, () => OnHandClicked(index),
-                    StateFor(card, index, swapPhase, myZone, jumpCards, jumpZone, swapTarget: false));
+                var state = StateFor(card, index, swapPhase, myZone, jumpCards, jumpZone, swapTarget: false);
+                state.Focused = IsFocused(Zone.Hand, index);
+                var button = CardFactory.Face(content, card, HandCard, () => OnHandClicked(index), state);
+                if (state.Focused) _kbFocusRect = (RectTransform)button.transform;
                 _humanCardAnchors.Add(new KeyValuePair<Card, RectTransform>(card, (RectTransform)button.transform));
             }
         }
@@ -1245,6 +1266,164 @@ namespace CaSentLeSoufre.App.UI
                 state.Highlight = true;
             }
             return state;
+        }
+
+        // ---------------------------------------------------------------- Clavier
+
+        /// <summary>Ordre d'affichage de la main : par puissance (le 2 à droite), couleur par couleur à égalité.</summary>
+        private static List<int> SortedHandOrder(Player me) =>
+            Enumerable.Range(0, me.Hand.Count)
+                .OrderBy(i => Card.Strength(me.Hand[i].Rank))
+                .ThenBy(i => (int)me.Hand[i].Suit)
+                .ToList();
+
+        private static int ZoneCount(Player me, Zone zone) =>
+            zone == Zone.Hand ? me.Hand.Count : zone == Zone.FaceUp ? me.FaceUp.Count : me.FaceDown.Count;
+
+        /// <summary>Indice réel de la carte visée par le curseur, ou -1 s'il n'y en a pas.</summary>
+        private int CursorCardIndex()
+        {
+            var me = _session.Game.Players[TableSession.HumanIndex];
+            if (_kbPos < 0 || _kbPos >= ZoneCount(me, _kbZone)) return -1;
+            return _kbZone == Zone.Hand ? SortedHandOrder(me)[_kbPos] : _kbPos;
+        }
+
+        private bool IsFocused(Zone zone, int index) =>
+            _kbActive && !_dealing && !_paused && zone == _kbZone && CursorCardIndex() == index;
+
+        /// <summary>Garde le curseur sur une zone et une carte qui existent encore.</summary>
+        private void ClampCursor()
+        {
+            var game = _session.Game;
+            if (game == null) return;
+            var me = game.Players[TableSession.HumanIndex];
+
+            // Pendant l'échange le curseur va de la main aux cartes visibles ; ensuite, il reste sur la zone jouée.
+            var allowed = game.Phase == GamePhase.Swap
+                ? new[] { Zone.Hand, Zone.FaceUp }
+                : new[] { game.GetActiveZone(TableSession.HumanIndex) };
+            if (Array.IndexOf(allowed, _kbZone) < 0)
+            {
+                _kbZone = allowed[0];
+                _kbPos = 0;
+            }
+            _kbPos = Mathf.Clamp(_kbPos, 0, Mathf.Max(0, ZoneCount(me, _kbZone) - 1));
+        }
+
+        /// <summary>
+        /// Flèches (ou ZQSD/WASD) pour viser une carte, Entrée pour la choisir ou la jouer, Espace pour l'action
+        /// principale (jouer la sélection, ramasser, être prêt, jouer à la volée). Le curseur n'apparaît qu'à la
+        /// première touche, et disparaît au clic de souris.
+        /// </summary>
+        private void HandleKeyboard(Keyboard keyboard)
+        {
+            var mouse = Mouse.current;
+            if (mouse != null && mouse.leftButton.wasPressedThisFrame) _kbActive = false;
+            if (keyboard == null || _dealing) return;
+
+            bool enter = keyboard.enterKey.wasPressedThisFrame || keyboard.numpadEnterKey.wasPressedThisFrame;
+            bool space = keyboard.spaceKey.wasPressedThisFrame;
+
+            if (_session.RoundOver)
+            {
+                if (enter || space)
+                {
+                    if (_match.IsOver) Abandon();
+                    else OnNextRound();
+                }
+                return;
+            }
+
+            int step = 0;
+            if (keyboard.leftArrowKey.wasPressedThisFrame || keyboard.aKey.wasPressedThisFrame) step -= 1;
+            if (keyboard.rightArrowKey.wasPressedThisFrame || keyboard.dKey.wasPressedThisFrame) step += 1;
+            bool vertical = keyboard.upArrowKey.wasPressedThisFrame || keyboard.downArrowKey.wasPressedThisFrame
+                || keyboard.wKey.wasPressedThisFrame || keyboard.sKey.wasPressedThisFrame;
+
+            var game = _session.Game;
+            bool swapPhase = game.Phase == GamePhase.Swap;
+
+            // Espace : l'action principale, qu'on voie le curseur ou non.
+            if (space)
+            {
+                if (swapPhase) OnReady();
+                else if (!_session.IsHumanTurn)
+                {
+                    var jump = _session.HumanJumpInCards();
+                    if (jump.Count > 0)
+                    {
+                        _session.HumanJumpIn(jump.Take(1).ToList());
+                        AfterAction();
+                    }
+                }
+                else if (_selected.Count > 0) PlaySelection();
+                else if (!game.HasLegalPlay(TableSession.HumanIndex)) OnPickUp();
+                else ActOnCursorCard();
+                return;
+            }
+
+            if (step == 0 && !vertical && !enter) return;
+
+            // La première touche montre seulement le curseur.
+            if (!_kbActive)
+            {
+                _kbActive = true;
+                ClampCursor();
+                _needsRefresh = true;
+                return;
+            }
+
+            if (enter) ActOnCursorCard();
+            if (vertical && swapPhase)
+            {
+                _kbZone = _kbZone == Zone.Hand ? Zone.FaceUp : Zone.Hand;
+                ClampCursor();
+                _needsRefresh = true;
+            }
+            if (step != 0)
+            {
+                int count = ZoneCount(game.Players[TableSession.HumanIndex], _kbZone);
+                int next = Mathf.Clamp(_kbPos + step, 0, Mathf.Max(0, count - 1));
+                if (next != _kbPos)
+                {
+                    _kbPos = next;
+                    AudioManager.Play(Sound.Click, 0.35f);
+                    _needsRefresh = true;
+                }
+            }
+        }
+
+        /// <summary>Entrée sur la carte visée : même effet qu'un clic dessus.</summary>
+        private void ActOnCursorCard()
+        {
+            int index = CursorCardIndex();
+            if (index < 0) return;
+            if (_kbZone == Zone.Hand) OnHandClicked(index);
+            else if (_kbZone == Zone.FaceUp) OnFaceUpClicked(index);
+            else OnFaceDownClicked(index);
+        }
+
+        /// <summary>Fait défiler la zone qui contient la carte visée, pour qu'on la voie toujours en entier.</summary>
+        private void ScrollToFocus()
+        {
+            if (_kbFocusRect == null) return;
+            var scroll = _kbFocusRect.GetComponentInParent<ScrollRect>();
+            if (scroll == null || scroll.viewport == null || scroll.content == null) return;
+
+            var bounds = RectTransformUtility.CalculateRelativeRectTransformBounds(scroll.viewport, _kbFocusRect);
+            var view = scroll.viewport.rect;
+            var shift = Vector2.zero;
+            if (scroll.horizontal)
+            {
+                if (bounds.min.x < view.xMin) shift.x = view.xMin - bounds.min.x;
+                else if (bounds.max.x > view.xMax) shift.x = view.xMax - bounds.max.x;
+            }
+            if (scroll.vertical)
+            {
+                if (bounds.min.y < view.yMin) shift.y = view.yMin - bounds.min.y;
+                else if (bounds.max.y > view.yMax) shift.y = view.yMax - bounds.max.y;
+            }
+            if (shift != Vector2.zero) scroll.content.anchoredPosition += shift;
         }
 
         // ---------------------------------------------------------------- Actions du joueur

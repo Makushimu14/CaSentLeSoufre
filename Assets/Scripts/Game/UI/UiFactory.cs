@@ -1,5 +1,7 @@
 using System;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
 namespace CaSentLeSoufre.App.UI
@@ -169,6 +171,7 @@ namespace CaSentLeSoufre.App.UI
             colors.selectedColor = Color.white;
             colors.disabledColor = new Color(0.55f, 0.55f, 0.55f, 0.7f);
             button.colors = colors;
+            FocusFrame.Attach(rect.gameObject);
             if (onClick != null)
                 button.onClick.AddListener(() =>
                 {
@@ -282,6 +285,34 @@ namespace CaSentLeSoufre.App.UI
 
             Size(rect, minWidth: 220, preferredWidth: 320, minHeight: height, preferredHeight: height, flexibleWidth: 1);
             return input;
+        }
+    }
+    /// <summary>
+    /// Cadre blanc autour de l'élément choisi au clavier. Un clic de souris sélectionne aussi le bouton :
+    /// le cadre ne s'affiche donc pas quand la souris est enfoncée.
+    /// </summary>
+    public sealed class FocusFrame : MonoBehaviour, ISelectHandler, IDeselectHandler
+    {
+        private Outline _outline;
+
+        public static void Attach(GameObject target)
+        {
+            var outline = target.AddComponent<Outline>();
+            outline.effectColor = Color.white;
+            outline.effectDistance = new Vector2(4, -4);
+            outline.enabled = false;
+            target.AddComponent<FocusFrame>()._outline = outline;
+        }
+
+        public void OnSelect(BaseEventData eventData)
+        {
+            var mouse = Mouse.current;
+            if (_outline != null) _outline.enabled = mouse == null || !mouse.leftButton.isPressed;
+        }
+
+        public void OnDeselect(BaseEventData eventData)
+        {
+            if (_outline != null) _outline.enabled = false;
         }
     }
 }

@@ -204,6 +204,30 @@ namespace CaSentLeSoufre.Tests
         }
 
         [Test]
+        public void AfterTheTwo_NextPlayerMayPlayAnything_AndOnlyAceOrTwoBeatsTheAce()
+        {
+            var rules = Rules(PowerType.Reset);
+            var a = new Player("A");
+            var b = new Player("B");
+            var c = new Player("C");
+            a.Hand.AddRange(new[] { C(2), C(5) });
+            b.Hand.AddRange(new[] { C(Card.Ace), C(4) });
+            c.Hand.AddRange(new[] { C(9, Suit.Diamonds), C(12, Suit.Diamonds) });
+            var game = Game.FromSetup(new[] { a, b, c }, rules, new List<Card>(), new[] { C(13) }.ToList(), 0, 1);
+
+            Assert.IsTrue(game.Play(0, new[] { C(2) }).Ok);
+            Assert.AreEqual(1, game.CurrentPlayerIndex);
+            Assert.IsTrue(game.CanPlayRank(4), "Tout se pose sur le 2");
+
+            Assert.IsTrue(game.Play(1, new[] { C(Card.Ace) }).Ok);
+            Assert.AreEqual(2, game.CurrentPlayerIndex);
+            Assert.IsFalse(game.HasLegalPlay(2), "Ni 9 ni dame ne battent l'as");
+            Assert.AreEqual(3, game.DiscardPile.Count);
+            Assert.IsTrue(game.PickUpPile(2).Ok);
+            Assert.AreEqual(5, c.Hand.Count);
+        }
+
+        [Test]
         public void ThreeTransparent_LooksUnderTheThree()
         {
             var rules = Rules(PowerType.Transparent);

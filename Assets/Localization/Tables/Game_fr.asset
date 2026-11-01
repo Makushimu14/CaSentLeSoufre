@@ -634,6 +634,10 @@ MonoBehaviour:
     m_Localized: "Appuyez sur \xC9chap pour fermer ce menu."
     m_Metadata:
       m_Items: []
+  - m_Id: 271694999224320
+    m_Localized: "Au clavier : fl\xE8ches pour viser, Entr\xE9e pour choisir ou jouer, Espace pour l'action principale (jouer, ramasser, pr\xEAt, \xE0 la vol\xE9e)."
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []
