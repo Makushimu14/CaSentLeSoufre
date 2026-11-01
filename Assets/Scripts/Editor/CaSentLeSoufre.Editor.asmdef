@@ -3,7 +3,8 @@
     "rootNamespace": "CaSentLeSoufre.EditorTools",
     "references": [
         "Unity.Localization",
-        "Unity.Localization.Editor"
+        "Unity.Localization.Editor",
+        "Unity.Addressables.Editor"
     ],
     "includePlatforms": [
         "Editor"

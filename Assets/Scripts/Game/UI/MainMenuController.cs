@@ -312,6 +312,19 @@ namespace CaSentLeSoufre.App.UI
 
             _startButton = UiFactory.MakeButton(_column,
                 Loc.Get(_showReplaceConfirm ? "menu.replace_confirm" : "menu.start"), OnStart, 36, 0, 84, Theme.Accent);
+
+            UiFactory.MakeButton(_column, Loc.Get("menu.quit_game"), QuitGame, 28, 0, 64);
+        }
+
+        /// <summary>Ferme le jeu (dans l'éditeur, arrête simplement le mode Play) après avoir gardé les préférences.</summary>
+        private void QuitGame()
+        {
+            SavePreferences();
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
+            Application.Quit();
+#endif
         }
 
         private void AddStepButton(Transform parent, string text, Action change, bool interactable = true)

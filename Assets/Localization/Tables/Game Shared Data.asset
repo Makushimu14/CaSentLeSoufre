@@ -635,6 +635,10 @@ MonoBehaviour:
     m_Key: pause.keys
     m_Metadata:
       m_Items: []
+  - m_Id: 285125278072832
+    m_Key: menu.quit_game
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:
