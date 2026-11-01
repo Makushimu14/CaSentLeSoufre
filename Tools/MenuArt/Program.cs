@@ -20,6 +20,15 @@ internal static class Program
 
     private static int Main(string[] args)
     {
+        if (args.Length > 0 && args[0] == "icon")
+        {
+            string iconPath = args.Length > 1 ? args[1] : Path.Combine("Assets", "Icons", "game_icon.png");
+            Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(iconPath)));
+            using (var icon = DrawIcon(1024)) icon.Save(iconPath, ImageFormat.Png);
+            Console.WriteLine("Écrit : " + Path.GetFullPath(iconPath));
+            return 0;
+        }
+
         string output = args.Length > 0 ? args[0] : Path.Combine("Assets", "Resources", "UI", "menu_background.jpg");
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(output)));
 
@@ -54,6 +63,55 @@ internal static class Program
     }
 
     private static Color C(int a, int r, int gr, int b) => Color.FromArgb(a, r, gr, b);
+
+    // ---------------------------------------------------------------- Icône
+
+    /// <summary>Icône du jeu : une carte (as de pique) devant un cercle occulte doré, sur un fond de braises.</summary>
+    private static Bitmap DrawIcon(int size)
+    {
+        var bitmap = new Bitmap(size, size, PixelFormat.Format32bppArgb);
+        using (var g = Graphics.FromImage(bitmap))
+        {
+            Setup(g);
+            g.Clear(Color.Transparent);
+            float s = size;
+
+            using (var clip = RoundedRect(0, 0, s, s, s * 0.2f))
+            {
+                g.SetClip(clip);
+
+                using (var brush = new LinearGradientBrush(new RectangleF(0, 0, s, s), C(255, 10, 5, 7), C(255, 70, 16, 8), 90f))
+                    g.FillRectangle(brush, 0, 0, s, s);
+                Glow(g, s / 2f, s * 1.02f, s * 0.95f, s * 0.6f, C(235, 245, 95, 20));
+                Glow(g, s / 2f, s * 0.46f, s * 0.55f, s * 0.5f, C(80, 220, 160, 50));
+
+                // Cercle et pentagramme dorés.
+                float cx = s / 2f, cy = s * 0.47f, r = s * 0.44f;
+                using (var ring = new Pen(C(235, 224, 190, 96), s * 0.012f))
+                using (var ringThin = new Pen(C(150, 224, 190, 96), s * 0.005f))
+                {
+                    g.DrawEllipse(ring, cx - r, cy - r, r * 2, r * 2);
+                    g.DrawEllipse(ringThin, cx - r * 1.06f, cy - r * 1.06f, r * 2.12f, r * 2.12f);
+                    var pts = Enumerable.Range(0, 5).Select(i => Polar(cx, cy, r * 0.97f, i * 72)).ToArray();
+                    int[] order = { 0, 2, 4, 1, 3, 0 };
+                    g.DrawLines(ring, order.Select(i => pts[i]).ToArray());
+                }
+
+                // La carte, légèrement penchée, grande pour rester lisible en petit.
+                var state = g.Save();
+                g.TranslateTransform(s / 2f, s * 0.54f);
+                g.ScaleTransform(s / 1024f * 2.35f, s / 1024f * 2.35f);
+                g.TranslateTransform(-s / 2f * 1024f / s, -s * 0.54f * 1024f / s);
+                DrawCard(g, 512, 553 + 143, 190, 285, -9f, "A♠", 0);
+                g.Restore(state);
+
+                // Reflet de braise sur le bas.
+                Glow(g, s / 2f, s * 1.05f, s * 0.7f, s * 0.22f, C(150, 255, 150, 40));
+                g.ResetClip();
+            }
+        }
+        return bitmap;
+    }
 
     // ---------------------------------------------------------------- Fond
 

@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEditor.AddressableAssets.Settings;
+using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 
@@ -17,9 +18,30 @@ namespace CaSentLeSoufre.EditorTools
     {
         private const string OutputFolder = "Builds/Windows";
 
+        private const string IconPath = "Assets/Icons/game_icon.png";
+
+        /// <summary>Applique l'icône du jeu (Tools/MenuArt icon) : fichier .exe, fenêtre et barre des tâches.</summary>
+        [MenuItem("Build/Appliquer l'icône")]
+        public static void ApplyIcon()
+        {
+            var icon = AssetDatabase.LoadAssetAtPath<Texture2D>(IconPath);
+            if (icon == null)
+            {
+                Debug.LogWarning("[Build] Icône introuvable : " + IconPath);
+                return;
+            }
+
+            var sizes = PlayerSettings.GetIconSizes(NamedBuildTarget.Standalone, IconKind.Application);
+            PlayerSettings.SetIcons(NamedBuildTarget.Standalone, Enumerable.Repeat(icon, sizes.Length).ToArray(),
+                IconKind.Application);
+            PlayerSettings.SetIcons(NamedBuildTarget.Unknown, new[] { icon }, IconKind.Any);
+            AssetDatabase.SaveAssets();
+        }
+
         [MenuItem("Build/Windows")]
         public static void BuildWindows()
         {
+            ApplyIcon();
             // Les tables de traduction passent par Addressables : leur contenu doit être construit avant le jeu.
             AddressableAssetSettings.BuildPlayerContent();
 
