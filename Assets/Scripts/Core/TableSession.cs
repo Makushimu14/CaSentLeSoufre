@@ -265,6 +265,9 @@ namespace CaSentLeSoufre.Core
                 _match == null || _match.IsOver));
         }
 
+        /// <summary>Part du délai habituel que les IA prennent quand le joueur, déjà sorti, ne fait que regarder.</summary>
+        private const float SpectatorSpeedUp = 0.2f;
+
         private void ResetTimers()
         {
             _turnTimer = 0;
@@ -273,7 +276,12 @@ namespace CaSentLeSoufre.Core
             if (_game == null || _game.Phase != GamePhase.Play) return;
 
             var current = _game.CurrentPlayer;
-            if (!current.IsHuman) _turnDelay = Jitter(_timings.PlayDelay(current.Difficulty));
+            if (!current.IsHuman)
+            {
+                // Une fois le joueur sorti, plus personne ne joue : les IA finissent la manche en accéléré.
+                bool humanOut = !_game.Players[HumanIndex].HasCards;
+                _turnDelay = Jitter(_timings.PlayDelay(current.Difficulty)) * (humanOut ? SpectatorSpeedUp : 1f);
+            }
 
             int count = _game.Players.Count;
             _reactionTimers = new float[count];

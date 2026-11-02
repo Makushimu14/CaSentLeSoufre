@@ -36,7 +36,7 @@ namespace CaSentLeSoufre.Core
         /// Sécurité anti-blocage n°2 (filet de sécurité contre les boucles non exactes) : sans progrès pendant
         /// ce nombre de coups par joueur encore en jeu, la manche s'arrête.
         /// </summary>
-        public const int StalemateMovesPerPlayer = 300;
+        public const int StalemateMovesPerPlayer = 150;
 
         public GameMode Mode = GameMode.Classic;
 

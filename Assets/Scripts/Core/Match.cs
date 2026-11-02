@@ -73,8 +73,27 @@ namespace CaSentLeSoufre.Core
             foreach (var ai in settings.Opponents)
                 _players.Add(new Player(ai.Name.Trim(), isHuman: false, difficulty: ai.Difficulty));
 
+            ShuffleOpponents(seed);
+
             _points = new int[_players.Count];
             _shitheadCount = new int[_players.Count];
+        }
+
+        /// <summary>
+        /// Les adversaires s'assoient dans un ordre tiré au sort pour chaque partie ; le joueur reste à sa place
+        /// (le premier siège). L'ordre ne dépend que de la graine : reprendre une partie sauvegardée redonne
+        /// exactement la même table.
+        /// </summary>
+        private void ShuffleOpponents(int seed)
+        {
+            var seating = new Random(seed ^ 0x5EA7C0DE);
+            for (int i = _players.Count - 1; i > 1; i--)
+            {
+                int j = 1 + seating.Next(i); // entre 1 et i : le siège 0 ne bouge jamais
+                var swap = _players[i];
+                _players[i] = _players[j];
+                _players[j] = swap;
+            }
         }
 
         /// <summary>Distribue la manche suivante. Impossible si la précédente n'est pas enregistrée.</summary>

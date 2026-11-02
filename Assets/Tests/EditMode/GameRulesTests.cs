@@ -381,10 +381,16 @@ namespace CaSentLeSoufre.Tests
         [Test]
         public void Stalemate_EndsRound_RanksByCardCount_AndMostCardsLoses()
         {
-            // Partie connue pour boucler (3 joueurs, graine 6) : les joueurs se repassent la défausse sans progresser.
-            var rules = Rules(PowerType.Skip, PowerType.Reverse);
-            var game = new Game(MakePlayers(3, 6), rules, 6);
-            var rng = new Random(6);
+            // Partie connue pour boucler (3 joueurs difficiles, graine 2) : le valet fait ramasser le suivant, qui
+            // récupère le valet et le rejoue : les cartes tournent sans que personne ne progresse.
+            var rules = RulesConfig.WithPowers(
+                new PowerSlot(PowerType.Reset, 2), new PowerSlot(PowerType.Transparent, 3),
+                new PowerSlot(PowerType.PlayAgain, 5), new PowerSlot(PowerType.LowerOrEqual, 7),
+                new PowerSlot(PowerType.Skip, 8), new PowerSlot(PowerType.Reverse, 9),
+                new PowerSlot(PowerType.Burn, 10), new PowerSlot(PowerType.ForcePickUp, Card.Jack));
+            var players = Enumerable.Range(0, 3).Select(i => new Player("P" + i, false, AiDifficulty.Hard)).ToList();
+            var game = new Game(players, rules, 2);
+            var rng = new Random(2);
             for (int i = 0; i < 3; i++) AiBrain.DoSwap(game, i, rng);
 
             int moves = 0;
@@ -471,7 +477,10 @@ namespace CaSentLeSoufre.Tests
             var match = new Match(settings, 7);
             Assert.AreEqual("Maxime", match.Players[0].Name);
             Assert.IsTrue(match.Players[0].IsHuman);
-            Assert.AreEqual(AiDifficulty.Hard, match.Players[3].Difficulty);
+            // Les adversaires s'assoient dans un ordre tiré au sort : on vérifie leurs niveaux sans compter sur la place.
+            CollectionAssert.AreEquivalent(
+                new[] { AiDifficulty.Easy, AiDifficulty.Normal, AiDifficulty.Hard },
+                match.Players.Skip(1).Select(p => p.Difficulty).ToArray());
 
             var rng = new Random(7);
             while (!match.IsOver)

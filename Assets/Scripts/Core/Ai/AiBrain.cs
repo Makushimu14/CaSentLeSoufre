@@ -6,26 +6,27 @@ namespace CaSentLeSoufre.Core.Ai
 {
     /// <summary>
     /// Décisions des joueurs IA, selon <see cref="Player.Difficulty"/> :
-    /// facile = coups au hasard ; normale = garde ses cartes à pouvoir et ses cartes fortes ;
+    /// facile = coups souvent au hasard ; normale = garde ses cartes à pouvoir et ses cartes fortes ;
     /// difficile = idem + enchaîne les brûlures et joue à la volée.
     /// </summary>
     public static class AiBrain
     {
-        /// <summary>Valeur « de conservation » d'une carte : celles qui portent un pouvoir sont précieuses.</summary>
+        /// <summary>
+        /// Valeur « de conservation » d'une carte : plus elle est haute, plus on la garde pour plus tard. Une carte
+        /// vaut d'abord sa force réelle : les basses cartes sont les plus difficiles à poser, on s'en débarrasse
+        /// tant qu'on peut, même si elles portent un pouvoir (un 3 qui fait passer un tour n'en reste pas moins
+        /// un 3). Seules la remise à zéro, qui se pose sur tout, et la brûlure, qui fait rejouer, sont des atouts
+        /// à garder ; un pouvoir quelconque ajoute juste un petit poids à force égale.
+        /// </summary>
         public static int Strength(RulesConfig rules, int rank)
         {
             var power = rules.PowerOf(rank);
             if (power == null) return Card.Strength(rank);
             switch (power.Value)
             {
-                case PowerType.Burn: return 22;
-                case PowerType.Reset: return 21;
-                case PowerType.Transparent: return 20;
-                case PowerType.ForcePickUp: return 19;
-                case PowerType.Skip: return 18;
-                case PowerType.Reverse:
-                case PowerType.PlayAgain: return 17;
-                default: return 16; // LowerOrEqual, SameOrFace
+                case PowerType.Reset: return 30;
+                case PowerType.Burn: return 25;
+                default: return Card.Strength(rank) + 1;
             }
         }
 
@@ -86,7 +87,11 @@ namespace CaSentLeSoufre.Core.Ai
             switch (player.Difficulty)
             {
                 case AiDifficulty.Easy:
-                    var pick = groups[rng.Next(groups.Count)];
+                    // Un débutant : une fois sur deux il joue sa plus faible carte (c'est le réflexe naturel),
+                    // sinon n'importe quelle carte jouable. Sans cela les parties entre débutants n'en finissent pas.
+                    var pick = rng.Next(2) == 0
+                        ? groups.OrderBy(g => Strength(game.Rules, g[0].Rank)).First()
+                        : groups[rng.Next(groups.Count)];
                     return game.Play(pi, pick.Take(1 + rng.Next(pick.Count)).ToList());
                 case AiDifficulty.Normal:
                     return game.Play(pi, groups.OrderBy(g => Strength(game.Rules, g[0].Rank)).First());
@@ -162,6 +167,9 @@ namespace CaSentLeSoufre.Core.Ai
             return true;
         }
 
+        /// <summary>Un adversaire qui n'a plus que ce nombre de cartes (au total) est sur le point de sortir.</summary>
+        private const int NearlyOutCards = 3;
+
         private static List<Card> ChooseHard(Game game, List<List<Card>> groups)
         {
             var rules = game.Rules;
@@ -176,19 +184,24 @@ namespace CaSentLeSoufre.Core.Ai
                         return g;
             }
 
-            // 2. Cartes sans pouvoir d'abord, de la plus faible à la plus forte (le 2 sans pouvoir est la plus forte).
-            //    Si une carte met le joueur suivant dans l'impossibilité de jouer d'après ce que tout le monde sait
-            //    de sa main, on prend la plus faible de celles-là : il devra ramasser.
-            var ordinary = groups.Where(g => rules.PowerOf(g[0].Rank) == null)
-                .OrderBy(g => Strength(rules, g[0].Rank)).ToList();
-            if (ordinary.Count > 0)
-                return ordinary.FirstOrDefault(g => TrapsNextPlayer(game, g[0].Rank)) ?? ordinary[0];
+            var ordered = groups.OrderBy(g => Strength(rules, g[0].Rank)).ToList();
 
-            // 3. Sinon un pouvoir : la brûlure sur une grosse défausse, le moins précieux sinon.
-            var powered = groups.OrderBy(g => Strength(rules, g[0].Rank)).ToList();
-            var burn = powered.FirstOrDefault(g => rules.PowerOf(g[0].Rank) == PowerType.Burn);
+            // 2. La brûlure sur une grosse défausse : on la vide et on rejoue.
+            var burn = ordered.FirstOrDefault(g => rules.PowerOf(g[0].Rank) == PowerType.Burn);
             if (burn != null && game.DiscardPile.Count >= 6) return burn;
-            return powered[0];
+
+            // 3. Bloquer le suivant n'a de sens que s'il est sur le point de sortir : sinon on dépense une bonne
+            //    carte pour rien, et on laisse le joueur d'après en profiter. Alors, et alors seulement, on prend
+            //    la plus faible des cartes qui le forcent à ramasser (d'après ce que tout le monde sait de sa main).
+            int next = game.PeekNextPlayerIndex();
+            if (next != game.CurrentPlayerIndex && game.Players[next].TotalCards <= NearlyOutCards)
+            {
+                var trap = ordered.FirstOrDefault(g => TrapsNextPlayer(game, g[0].Rank));
+                if (trap != null) return trap;
+            }
+
+            // 4. Sinon, comme un bon joueur : la carte la plus faible (qu'elle soit en main ou devant soi).
+            return ordered[0];
         }
     }
 }

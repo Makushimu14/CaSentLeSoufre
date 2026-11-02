@@ -92,7 +92,7 @@ namespace CaSentLeSoufre.Core
     [Serializable]
     public sealed class MatchData
     {
-        public const int CurrentVersion = 1;
+        public const int CurrentVersion = 2; // 2 : places des adversaires tirées au sort
 
         public int Version = CurrentVersion;
         public SettingsData Settings = new SettingsData();
